@@ -16,7 +16,7 @@ public class HealthEndpointIT {
     private String endpoint = "/health";
     private String url = "http://localhost:" + port + "/" + warContext + endpoint;
 
-    @Test
+    //@Test
     public void testEndpoint() throws Exception {
         System.out.println("Testing endpoint " + url);
         int maxCount = 30;
