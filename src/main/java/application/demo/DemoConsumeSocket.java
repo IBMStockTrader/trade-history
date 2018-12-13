@@ -30,7 +30,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.log4j.Logger;
 
-import application.demo.MongoConnector;
+import application.mongo.MongoConnector;
+import application.mongo.StockPurchase;
+import application.demo.DemoConsumedMessage;
 import application.kafka.Consumer;
 
 @ServerEndpoint(value = "/democonsume", encoders = { DemoMessageEncoder.class })
@@ -195,7 +197,8 @@ public class DemoConsumeSocket {
                     DemoConsumedMessage message = new DemoConsumedMessage(record.topic(), record.partition(),
                             record.offset(), record.value(), record.timestamp());
                     
-                    mc.insertFile(message);
+                    StockPurchase sp = new StockPurchase(message.getValue());
+                    mc.insertStockPurchase(sp, message);
                     try {
                         logger.debug(String.format("Consumed message %s",message.encode()));
                         while (!exit && !messageQueue.offer(message, 1, TimeUnit.SECONDS));

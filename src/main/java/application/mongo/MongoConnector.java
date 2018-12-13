@@ -1,4 +1,4 @@
-package application.demo;
+package application.mongo;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -23,6 +23,8 @@ import com.mongodb.client.result.UpdateResult;
 import java.util.ArrayList;
 import java.util.List;
 
+import application.demo.DemoConsumedMessage;
+
 public class MongoConnector {
     public static MongoDatabase database;
     public static MongoClient mongoClient;
@@ -32,15 +34,14 @@ public class MongoConnector {
         char[] password = {'S','w','U','N','o','y','W','w','I','7'};
         MongoCredential credential = MongoCredential.createCredential("mongo", "admin", password);
         ServerAddress sa = new ServerAddress("9.42.17.249",30282);
-        mongoClient = new MongoClient(sa, Arrays.asList(credential));
 
+        mongoClient = new MongoClient(sa, Arrays.asList(credential));
         database = mongoClient.getDatabase( "test" );
-        //db.createCollection("create_collection_test");
 
         System.out.println("\n::::No errors here: " + database.getName());
     }
 
-    public void insertFile (DemoConsumedMessage dcm) {
+    /*public void insertFile (DemoConsumedMessage dcm) {
         MongoCollection<Document> collection = database.getCollection("test_collection");
            Document doc = new Document("topic", dcm.getTopic())
                 .append("partition", dcm.getPartition())
@@ -48,36 +49,25 @@ public class MongoConnector {
                 .append("value", dcm.getValue())
                 .append("timestamp", dcm.getTimestamp());
             collection.insertOne(doc);
+    }*/
+
+    //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "comission":0  } 
+    public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
+        MongoCollection<Document> collection = database.getCollection("test_collection");
+           Document doc = new Document("topic", dcm.getTopic())
+                .append("owner", sp.getOwner())
+                .append("symbol", sp.getSymbol())
+                .append("shares", sp.getShares())
+                .append("price", sp.getPrice())
+                .append("when", sp.getWhen())
+                .append("comission", sp.getComission());
+            collection.insertOne(doc);
     }
 
+    /*public void retrieveMostRecentDoc(){
+        return database.getCollection().find().skip(database.getCollection().count() - 1);
+    }*/
+
     //StockPurchase purchase = new StockPurchase(tradeID, owner, symbol, shares, price, when, commission);
-
-    /*
-        .add("topic", topic)
-        .add("partition", partition)
-        .add("offset", offset)
-        .add("value", value)
-        .add("timestamp", timestamp)
-
-    */
-
-    /*
-          {
-            "name" : "MongoDB",
-            "type" : "database",
-            "count" : 1,
-            "versions": [ "v3.2", "v3.0", "v2.6" ],
-            "info" : { x : 203, y : 102 }
-          }
-    */
-
-    /*
-        MongoCollection<Document> collection = database.getCollection("test");
-           Document doc = new Document("name", "MongoDB")
-                .append("type", "database")
-                .append("count", 1)
-                .append("versions", Arrays.asList("v3.2", "v3.0", "v2.6"))
-                .append("info", new Document("x", 203).append("y", 102));
-            collection.insertOne(doc);
-    */
+    
 }
