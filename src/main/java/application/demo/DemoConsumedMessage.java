@@ -1,8 +1,10 @@
 package application.demo;
 
+import java.io.Serializable;
 import javax.json.Json;
+import org.bson.Document;
 
-public class DemoConsumedMessage {
+public class DemoConsumedMessage implements Serializable{
 
     private String topic;
     private int partition;
@@ -36,6 +38,11 @@ public class DemoConsumedMessage {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuffer().append(encode()).toString();
     }
 
     public String encode() {

@@ -23,6 +23,7 @@ public class Consumer {
     private final long POLL_DURATION = 1000;
     private final String USERNAME = "token";
     private final String API_KEY = System.getenv("CONSUMER_API_KEY");
+    private final String MONGO_URL = System.getenv("MONGO_URL");
 
     private String consumerGroupId;
     private KafkaConsumer<String, String> kafkaConsumer;

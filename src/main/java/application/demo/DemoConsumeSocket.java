@@ -22,10 +22,15 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.FileWriter;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.log4j.Logger;
 
+import application.demo.MongoConnector;
 import application.kafka.Consumer;
 
 @ServerEndpoint(value = "/democonsume", encoders = { DemoMessageEncoder.class })
@@ -176,9 +181,12 @@ public class DemoConsumeSocket {
     private class KafkaConsumer implements Runnable {
         volatile boolean exit = false;
         BlockingQueue<DemoConsumedMessage> messageQueue;
+        private static final String filepath="consumed.json";
 
         @Override
         public void run() {
+            MongoConnector mc = new MongoConnector();
+            mc.initialize();
             while (!exit) {
                 logger.debug("Consuming messages from Kafka");
                 ConsumerRecords<String, String> records = consumer.consume();
@@ -186,6 +194,8 @@ public class DemoConsumeSocket {
                 for (ConsumerRecord<String, String> record : records) {
                     DemoConsumedMessage message = new DemoConsumedMessage(record.topic(), record.partition(),
                             record.offset(), record.value(), record.timestamp());
+                    
+                    mc.insertFile(message);
                     try {
                         logger.debug(String.format("Consumed message %s",message.encode()));
                         while (!exit && !messageQueue.offer(message, 1, TimeUnit.SECONDS));
