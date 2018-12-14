@@ -3,22 +3,19 @@
   <featureManager>
       <feature>microprofile-1.2</feature>
       <feature>jndi-1.0</feature>
-      <feature>jsp-2.3</feature>
-      <feature>servlet-3.1</feature>
-      <feature>managedBeans-1.0</feature>
       <feature>websocket-1.1</feature>
+      <feature>mongodb-2.0</feature>
   </featureManager>
 
   <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
       id="defaultHttpEndpoint" host="*" />
 
-
+  <mongo id="mongo" libraryRef="MongoLib" />
+  <mongoDB jndiName="mongo/testdb" mongoRef="mongo" databaseName="db-test" />
 
   <!-- Automatically expand WAR files and EAR files -->
   <applicationManager autoExpand="true"/>
 
-  <applicationMonitor pollingRate="1000ms"/>
-
-  <webApplication name="tradehistory" location="${app.location}"/>
+  <webApplication name="tradeHistory" location="${app.location}"/>
 
 </server>
