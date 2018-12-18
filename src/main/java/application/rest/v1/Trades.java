@@ -9,7 +9,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.util.Arrays;
+
+
+import com.mongodb.MongoClient;
 import com.ibm.json.java.JSONObject;
+import com.mongodb.client.FindIterable;
+import org.bson.Document;
 
 import application.mongo.MongoConnector;
 
@@ -26,6 +32,8 @@ public class Trades {
         return Response.ok(list.toString()).build();
     }
 
+    //com.ibm.hybrid.cloud.sample.stocktrader.tradehistory
+    //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "comission":0  } 
     // URL: /tradeHistory/rest/v1/trade
     @Path("/trade")
     @GET
@@ -41,13 +49,18 @@ public class Trades {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JSONObject latestBuy() {
-        MongoConnector mc = new MongoConnector();
+        MongoConnector mConnector = new MongoConnector();
+        MongoClient mClient = mConnector.mongoClient;
         //TODO: rest call to get data from Mongo API
         JSONObject json = new JSONObject();
-        json.put("id", mc.retrieveMostRecentDoc());
-        return json;
-    }*/
+        long dbSize = mClient.getDatabase("test").getCollection("test_collection").count();
+        int approxDbSize = Math.toIntExact(dbSize);
 
-    //TODO: add a path that takes date start and end parameters, and filter to trades within the timeframe
-        // cloudant rest api should have a way to do this filtering
+        FindIterable<Document> docs = mClient.getDatabase("test").getCollection("test_collection").find().skip(approxDbSize - 1);
+        for (Document doc : docs) {
+            json.put("trade", doc.toJson());
+        }
+
+        return json;
+    }
 }

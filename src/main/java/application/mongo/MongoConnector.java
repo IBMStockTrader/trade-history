@@ -30,15 +30,9 @@ public class MongoConnector {
     public static MongoClient mongoClient;
 
     //public void initialize(String MONGO_URL) {
-    public static void initialize() { 
-        char[] password = {'S','w','U','N','o','y','W','w','I','7'};
-        MongoCredential credential = MongoCredential.createCredential("mongo", "admin", password);
-        ServerAddress sa = new ServerAddress("9.42.17.249",30282);
-
+    public static void initialize(MongoCredential credential, ServerAddress sa, String collection) { 
         mongoClient = new MongoClient(sa, Arrays.asList(credential));
-        database = mongoClient.getDatabase( "test" );
-
-        System.out.println("\n::::No errors here: " + database.getName());
+        database = mongoClient.getDatabase( collection );
     }
 
     /*public void insertFile (DemoConsumedMessage dcm) {
