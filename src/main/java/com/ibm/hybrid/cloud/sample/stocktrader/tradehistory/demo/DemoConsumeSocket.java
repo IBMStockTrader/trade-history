@@ -1,4 +1,4 @@
-package application.demo;
+package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -22,18 +22,17 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.FileWriter;
-
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.log4j.Logger;
 
-import application.mongo.MongoConnector;
-import application.mongo.StockPurchase;
-import application.demo.DemoConsumedMessage;
-import application.kafka.Consumer;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
+
+ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
+ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.StockPurchase;
+ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka.Consumer;
+
 
 @ServerEndpoint(value = "/democonsume", encoders = { DemoMessageEncoder.class })
 public class DemoConsumeSocket {
@@ -43,6 +42,17 @@ public class DemoConsumeSocket {
 
     private Session currentSession = null;
     private Consumer consumer = null;
+
+    private char[] MONGO_PASSWORD =  System.getenv("MONGO_PASSWORD").toCharArray();
+    private String MONGO_DATABASE = System.getenv("MONGO_DATABASE");
+    private String MONGO_USER = System.getenv("MONGO_USER");
+    private String MONGO_IP = System.getenv("MONGO_IP");
+    private int MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
+    private String MONGO_COLLECTION = System.getenv("MONGO_COLLECTION");
+
+    private ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
+    private MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_DATABASE, MONGO_PASSWORD);
+
 
     private MessageController messageController = null;
 
@@ -95,7 +105,7 @@ public class DemoConsumeSocket {
     }
 
     @OnClose
-    public void onClose(Session session, CloseReason closeReason) throws InterruptedException {
+    public void onClose(Session session, CloseReason closeReason) {
         logger.debug("Closed websocket");
         if (messageController != null) {
             logger.debug("Stopping message controller");
@@ -188,7 +198,7 @@ public class DemoConsumeSocket {
         @Override
         public void run() {
             MongoConnector mc = new MongoConnector();
-            mc.initialize();
+            mc.initialize(credential, sa, MONGO_COLLECTION);
             while (!exit) {
                 logger.debug("Consuming messages from Kafka");
                 ConsumerRecords<String, String> records = consumer.consume();

@@ -1,44 +1,25 @@
-package application.mongo;
+package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.mongodb.ServerAddress;
-
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.MongoCredential;
 
 import org.bson.Document;
 import java.util.Arrays;
-import com.mongodb.Block;
 
-import com.mongodb.client.MongoCursor;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
-import com.mongodb.DB;
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo.DemoConsumedMessage;
 
-import static com.mongodb.client.model.Filters.*;
-import com.mongodb.client.result.DeleteResult;
-import static com.mongodb.client.model.Updates.*;
-import com.mongodb.client.result.UpdateResult;
-import java.util.ArrayList;
-import java.util.List;
-
-import application.demo.DemoConsumedMessage;
 
 public class MongoConnector {
     public static MongoDatabase database;
     public static MongoClient mongoClient;
 
     //public void initialize(String MONGO_URL) {
-    public static void initialize() { 
-        char[] password = {'S','w','U','N','o','y','W','w','I','7'};
-        MongoCredential credential = MongoCredential.createCredential("mongo", "admin", password);
-        ServerAddress sa = new ServerAddress("9.42.17.249",30282);
-
+    public static void initialize(MongoCredential credential, ServerAddress sa, String collection) { 
         mongoClient = new MongoClient(sa, Arrays.asList(credential));
-        database = mongoClient.getDatabase( "test" );
-
-        System.out.println("\n::::No errors here: " + database.getName());
+        database = mongoClient.getDatabase( collection );
     }
 
     /*public void insertFile (DemoConsumedMessage dcm) {

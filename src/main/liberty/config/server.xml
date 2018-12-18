@@ -10,8 +10,8 @@
   <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
       id="defaultHttpEndpoint" host="*" />
 
-  <mongo id="mongo" libraryRef="MongoLib" />
-  <mongoDB jndiName="mongo/testdb" mongoRef="mongo" databaseName="db-test" />
+  <mongo id="com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo" libraryRef="MongoLib" />
+  <mongoDB jndiName="com.ibm.hybrid.cloud.sample.stocktrader.mongo/testdb" mongoRef="com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo" databaseName="db-test" />
 
   <!-- Automatically expand WAR files and EAR files -->
   <applicationManager autoExpand="true"/>

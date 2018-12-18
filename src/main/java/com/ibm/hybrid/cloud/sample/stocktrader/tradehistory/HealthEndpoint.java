@@ -1,4 +1,4 @@
-package application;
+package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory;
 
 import java.io.IOException;
 
@@ -15,16 +15,16 @@ public class HealthEndpoint extends HttpServlet {
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+        //response.setContentType("application/json");
         /*
         if (!healthy) {
             response.getWriter().append("{\"status\":\"DOWN\"}");
             response.setStatus(response.SC_SERVICE_UNAVAILABLE);
         }
         */
-        response.getWriter().append("{\"status\":\"UP\"}");
-        response.setStatus(response.SC_OK);
+        //response.getWriter().append("{\"status\":\"UP\"}");
+        //response.setStatus(response.SC_OK);
     }
 
 }

@@ -13,3 +13,8 @@
 /src/main/liberty/config/server.env
 
 /mc-target
+/.metadata/
+/.idea
+/.editorconfig
+*.iml
+**/.idea/ 

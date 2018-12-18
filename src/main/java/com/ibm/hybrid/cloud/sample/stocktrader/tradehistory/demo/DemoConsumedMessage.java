@@ -1,8 +1,7 @@
-package application.demo;
+package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo;
 
 import java.io.Serializable;
 import javax.json.Json;
-import org.bson.Document;
 
 public class DemoConsumedMessage implements Serializable{
 
