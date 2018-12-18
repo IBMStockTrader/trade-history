@@ -1,4 +1,4 @@
-package application.demo;
+package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo;
 
 import javax.websocket.EncodeException;
 import javax.websocket.Encoder;

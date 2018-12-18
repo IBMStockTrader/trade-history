@@ -206,7 +206,7 @@
                       </configuration>
                     </execution>
                     <execution>
-                        <id>copy-javametrics-rest</id>
+                        <id>copy-javametrics-com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest</id>
                         <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
@@ -214,7 +214,7 @@
                         <configuration>
                           <stripVersion>true</stripVersion>
                           <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/dropins</outputDirectory>
-                          <includeArtifactIds>javametrics-rest</includeArtifactIds>
+                          <includeArtifactIds>javametrics-com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest</includeArtifactIds>
                       </configuration>
                     </execution>
                     <execution>

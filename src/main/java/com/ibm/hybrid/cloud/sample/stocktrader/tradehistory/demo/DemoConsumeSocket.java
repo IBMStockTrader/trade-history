@@ -1,4 +1,4 @@
-package application.demo;
+package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -22,20 +22,17 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.FileWriter;
-
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.log4j.Logger;
 
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import application.mongo.MongoConnector;
-import application.mongo.StockPurchase;
-import application.demo.DemoConsumedMessage;
-import application.kafka.Consumer;
+
+ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
+ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.StockPurchase;
+ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka.Consumer;
+
 
 @ServerEndpoint(value = "/democonsume", encoders = { DemoMessageEncoder.class })
 public class DemoConsumeSocket {
@@ -108,7 +105,7 @@ public class DemoConsumeSocket {
     }
 
     @OnClose
-    public void onClose(Session session, CloseReason closeReason) throws InterruptedException {
+    public void onClose(Session session, CloseReason closeReason) {
         logger.debug("Closed websocket");
         if (messageController != null) {
             logger.debug("Stopping message controller");

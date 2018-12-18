@@ -1,4 +1,4 @@
-package application.kafka;
+package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka;
 
 import java.util.Arrays;
 import java.util.Properties;

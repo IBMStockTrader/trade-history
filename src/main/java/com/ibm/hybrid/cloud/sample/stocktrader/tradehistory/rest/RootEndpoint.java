@@ -1,4 +1,4 @@
-package application.rest;
+package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest;
 
 import java.io.InputStream;
 
@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-@Path("/rest")
+@Path("/com/ibm/hybrid/cloud/sample/stocktrader/tradehistory/rest")
 public class RootEndpoint {
 
   @GET
