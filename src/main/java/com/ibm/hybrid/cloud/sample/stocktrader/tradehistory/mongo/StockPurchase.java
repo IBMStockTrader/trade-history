@@ -7,22 +7,27 @@ import org.json.JSONObject;
 
 public class StockPurchase implements Serializable{
 
+    private String id;
     private String owner;
     private String symbol;
     private int shares;
     private int price;
     private String when;
-    private int comission;
+    private int commission;
 
     public StockPurchase(String json) {
         JSONObject jObject = new JSONObject(json);
-
+        this.id = jObject.getString("id");
         this.owner = jObject.getString("owner");
         this.symbol = jObject.getString("symbol");
         this.shares = jObject.getInt("shares");
         this.price = jObject.getInt("price");
         this.when = jObject.getString("when");
-        this.comission = jObject.getInt("comission");
+        this.commission = jObject.getInt("commission");
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getOwner() {
@@ -45,8 +50,8 @@ public class StockPurchase implements Serializable{
         return when;
     }
 
-    public int getComission() {
-        return comission;
+    public int getCommission() {
+        return commission;
     }
 
     @Override
@@ -56,12 +61,13 @@ public class StockPurchase implements Serializable{
 
     public String encode() {
         return Json.createObjectBuilder()
+            .add("id", id)
             .add("owner", owner)
             .add("symbol", symbol)
             .add("shares", shares)
             .add("price", price)
             .add("when", when)
-            .add("comission", comission)
+            .add("commission", commission)
             .build().toString();
     }
 }
