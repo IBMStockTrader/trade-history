@@ -2,29 +2,30 @@ package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory;
 
 import java.io.IOException;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(urlPatterns="/health")
-public class HealthEndpoint extends HttpServlet {
+import javax.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.health.Health;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
+
+@Health
+@ApplicationScoped
+public class HealthEndpoint implements HealthCheck {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-     */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        //response.setContentType("application/json");
-        /*
-        if (!healthy) {
-            response.getWriter().append("{\"status\":\"DOWN\"}");
-            response.setStatus(response.SC_SERVICE_UNAVAILABLE);
-        }
-        */
-        //response.getWriter().append("{\"status\":\"UP\"}");
-        //response.setStatus(response.SC_OK);
+    @Override
+    public HealthCheckResponse call() {
+        //TODO: add checks for mongo, kafka, etc
+        HealthCheckResponseBuilder builder = HealthCheckResponse.named("Consumer");
+
+        return builder.up().build();
     }
 
 }
