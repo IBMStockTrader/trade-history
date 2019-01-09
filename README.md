@@ -16,7 +16,8 @@ MONGO_PORT=...
 MONGO_COLLECTION=...
 ```
 
-If you plan to deploy your application, you can configure the same properties using Kube Secrets defined ad `mondodbenv` and `kafka`. 
+If you plan to deploy your application to a cloud environment, you can configure the same properties using [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/). 
+The [bindings.yml](chart/tradehistory/bindings.yaml) links the secrets to the environment variables in the docker container. 
 
 ### Build and run
 
@@ -39,13 +40,12 @@ The application should be accessible from http://localhost:9080
 Build the docker container from the root directory: 
 
 ```bash
-docker build -t trade_history .
-```
-
+docker build -t trade-history .
+```g
 To run the docker containter locally:
 
 ```bash
-docker run -p 9080:9080 trade_history
+docker run -p 9080:9080 trade-history
 ```
 
 The application should be accessible from http://localhost:9080
