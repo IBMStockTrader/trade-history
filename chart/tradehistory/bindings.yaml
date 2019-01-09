@@ -30,3 +30,57 @@
       name: apm-server-config
       key: ibm_apm_access_token
       optional: true
+- name: MONGO_USER
+  valueFrom:
+    secretKeyRef:
+      name: mongodbenv
+      key: MONGO_USER
+      optional: false
+- name: MONGO_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: mongodbenv
+      key: MONGO_PASSWORD
+      optional: false
+- name: MONGO_DATABASE
+  valueFrom:
+    secretKeyRef:
+      name: mongodbenv
+      key: MONGO_DATABASE
+      optional: false
+- name: MONGO_COLLECTION
+  valueFrom:
+    secretKeyRef:
+      name: mongodbenv
+      key: MONGO_COLLECTION
+      optional: false
+- name: MONGO_IP
+  valueFrom:
+    secretKeyRef:
+      name: mongodbenv
+      key: MONGO_IP
+      optional: false
+- name: MONGO_PORT
+  valueFrom:
+    secretKeyRef:
+      name: mongodbenv
+      key: MONGO_PORT
+      optional: false
+- name: TOPIC
+  valueFrom:
+    secretKeyRef:
+        name: kafka
+        key: topic
+        optional: true
+- name: BOOTSTRAP_SERVER
+  valueFrom:
+    secretKeyRef:
+        name: kafka
+        key: address
+        optional: true
+- name: CONSUMER_API_KEY
+  valueFrom:
+    secretKeyRef:
+        name: kafka
+        key: api-key2
+        optional: true
