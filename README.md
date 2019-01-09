@@ -2,7 +2,7 @@
 Microservice that keeps a detailed history of all stock trades
 
 ### Configuration
-Before building, make sure you setup your environment variables in your server.env file. 
+If you wish to build locally,  setup up your environment variables in your server.env file. 
 ```
 TOPIC="..."
 BOOTSTRAP_SERVER="..."
@@ -15,6 +15,8 @@ MONGO_IP=...
 MONGO_PORT=...
 MONGO_COLLECTION=...
 ```
+
+If you plan to deploy your application, you can configure the same properties using Kube Secrets defined ad `mondodbenv` and `kafka`. 
 
 ### Build and run
 
@@ -49,7 +51,7 @@ docker run -p 9080:9080 trade_history
 The application should be accessible from http://localhost:9080
 
 
-### ICP
+### ICP Setup and Deployment
 
 Prerequisites:
 
@@ -58,10 +60,11 @@ Prerequisites:
 
 Steps:
 
-1. Login to cloudctl instance. 
+1. Login to your ICP instance using cloudctl from the machine you wish to deploy from.  
 2. Configure your client and set your Kubectl context by copying and pasting the configure client 
+3. Follow the Kubernetes General Deployment Instructions to deploy the application. 
 
-### Deploy
+### Kubernetes General Deployment
 
 After building the docker container locally, use the helm chart from the charts directory to deploy:
 ```bash
