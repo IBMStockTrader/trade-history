@@ -2,7 +2,7 @@
 Microservice that keeps a detailed history of all stock trades
 
 ### Configuration
-Before building, make sure you setup your environment variables in your server.env file. 
+If you wish to build locally,  setup up your environment variables in your server.env file. 
 ```
 TOPIC="..."
 BOOTSTRAP_SERVER="..."
@@ -15,6 +15,9 @@ MONGO_IP=...
 MONGO_PORT=...
 MONGO_COLLECTION=...
 ```
+
+If you plan to deploy your application to a cloud environment, you can configure the same properties using [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/). 
+The [bindings.yml](chart/tradehistory/bindings.yaml) links the secrets to the environment variables in the docker container. 
 
 ### Build and run
 
@@ -37,18 +40,31 @@ The application should be accessible from http://localhost:9080
 Build the docker container from the root directory: 
 
 ```bash
-docker build -t trade_history .
-```
-
+docker build -t trade-history .
+```g
 To run the docker containter locally:
 
 ```bash
-docker run -p 9080:9080 trade_history
+docker run -p 9080:9080 trade-history
 ```
 
 The application should be accessible from http://localhost:9080
 
-### Deploy
+
+### ICP Setup and Deployment
+
+Prerequisites:
+
+1. Install [Cloudctl ClI](https://www.ibm.com/support/knowledgecenter/en/SSBS6K_3.1.0/manage_cluster/install_cli.html)
+2. Install [Kubectl ClI](https://www.ibm.com/support/knowledgecenter/SSBS6K_3.1.1/manage_cluster/cfc_cli.html)
+
+Steps:
+
+1. Login to your ICP instance using cloudctl from the machine you wish to deploy from.  
+2. Configure your client and set your Kubectl context by copying and pasting the configure client 
+3. Follow the Kubernetes General Deployment Instructions to deploy the application. 
+
+### Kubernetes General Deployment
 
 After building the docker container locally, use the helm chart from the charts directory to deploy:
 ```bash
