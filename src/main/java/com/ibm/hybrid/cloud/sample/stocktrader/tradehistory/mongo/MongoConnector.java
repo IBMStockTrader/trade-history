@@ -13,13 +13,22 @@ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo.DemoConsumedMes
 
 
 public class MongoConnector {
+    private char[] MONGO_PASSWORD =  System.getenv("MONGO_PASSWORD").toCharArray();
+    private String MONGO_DATABASE = System.getenv("MONGO_DATABASE");
+    private String MONGO_USER = System.getenv("MONGO_USER");
+    private String MONGO_IP = System.getenv("MONGO_IP");
+    private int MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
+    private String MONGO_COLLECTION = System.getenv("MONGO_COLLECTION");
+
+    private ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
+    private MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_DATABASE, MONGO_PASSWORD);
+
     public static MongoDatabase database;
     public static MongoClient mongoClient;
 
-    //public void initialize(String MONGO_URL) {
-    public static void initialize(MongoCredential credential, ServerAddress sa, String collection) { 
+    public MongoConnector(){
         mongoClient = new MongoClient(sa, Arrays.asList(credential));
-        database = mongoClient.getDatabase( collection );
+        database = mongoClient.getDatabase( MONGO_COLLECTION );
     }
 
     /*public void insertFile (DemoConsumedMessage dcm) {
@@ -35,7 +44,7 @@ public class MongoConnector {
     //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "comission":0  } 
     public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
         //Only add to DB if it's a valid Symbol 
-        if(sp.getPrice()) {
+        if( sp.getPrice() > 0 ) {
             MongoCollection<Document> collection = database.getCollection("test_collection");
             Document doc = new Document("topic", dcm.getTopic())
                     .append("id", sp.getId())

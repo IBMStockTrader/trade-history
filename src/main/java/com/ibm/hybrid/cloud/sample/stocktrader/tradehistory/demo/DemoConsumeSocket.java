@@ -43,17 +43,6 @@ public class DemoConsumeSocket {
     private Session currentSession = null;
     private Consumer consumer = null;
 
-    private char[] MONGO_PASSWORD =  System.getenv("MONGO_PASSWORD").toCharArray();
-    private String MONGO_DATABASE = System.getenv("MONGO_DATABASE");
-    private String MONGO_USER = System.getenv("MONGO_USER");
-    private String MONGO_IP = System.getenv("MONGO_IP");
-    private int MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
-    private String MONGO_COLLECTION = System.getenv("MONGO_COLLECTION");
-
-    private ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
-    private MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_DATABASE, MONGO_PASSWORD);
-
-
     private MessageController messageController = null;
 
     private Logger logger = Logger.getLogger(DemoConsumeSocket.class);
@@ -198,7 +187,6 @@ public class DemoConsumeSocket {
         @Override
         public void run() {
             MongoConnector mc = new MongoConnector();
-            mc.initialize(credential, sa, MONGO_COLLECTION);
             while (!exit) {
                 logger.debug("Consuming messages from Kafka");
                 ConsumerRecords<String, String> records = consumer.consume();
