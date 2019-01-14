@@ -34,16 +34,19 @@ public class MongoConnector {
 
     //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "comission":0  } 
     public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
-        MongoCollection<Document> collection = database.getCollection("test_collection");
-           Document doc = new Document("topic", dcm.getTopic())
-                .append("id", sp.getId())
-                .append("owner", sp.getOwner())
-                .append("symbol", sp.getSymbol())
-                .append("shares", sp.getShares())
-                .append("price", sp.getPrice())
-                .append("when", sp.getWhen())
-                .append("comission", sp.getCommission());
-            collection.insertOne(doc);
+        //Only add to DB if it's a valid Symbol 
+        if(sp.getPrice()) {
+            MongoCollection<Document> collection = database.getCollection("test_collection");
+            Document doc = new Document("topic", dcm.getTopic())
+                    .append("id", sp.getId())
+                    .append("owner", sp.getOwner())
+                    .append("symbol", sp.getSymbol())
+                    .append("shares", sp.getShares())
+                    .append("price", sp.getPrice())
+                    .append("when", sp.getWhen())
+                    .append("comission", sp.getCommission());
+                collection.insertOne(doc);
+        }
     }
 
     /*public void retrieveMostRecentDoc(){
