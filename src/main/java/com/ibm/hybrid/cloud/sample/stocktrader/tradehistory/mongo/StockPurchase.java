@@ -21,7 +21,7 @@ public class StockPurchase implements Serializable{
         this.owner = jObject.getString("owner");
         this.symbol = jObject.getString("symbol");
         this.shares = jObject.getInt("shares");
-        this.price = jObject.getInt("price");
+        this.price = jObject.getDouble("price");
         this.when = jObject.getString("when");
         this.commission = jObject.getInt("commission");
     }
@@ -42,7 +42,7 @@ public class StockPurchase implements Serializable{
         return shares;
     }
 
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 
