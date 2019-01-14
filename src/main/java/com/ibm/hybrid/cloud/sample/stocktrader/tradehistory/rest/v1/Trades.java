@@ -79,4 +79,13 @@ public class Trades {
         
         return mConnector.getTrades(ownerName).toString();
     }
+
+    @Path("/trades/{owner}/{symbol}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getROI(@PathParam("owner") String ownerName, @PathParam("symbol") String symbol) {
+        MongoConnector mConnector = new MongoConnector();
+
+        return mConnector.getTradesForSymbol(ownerName, symbol).toString();
+    }
 }

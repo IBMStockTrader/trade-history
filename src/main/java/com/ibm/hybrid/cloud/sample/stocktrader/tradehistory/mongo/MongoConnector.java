@@ -6,7 +6,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.MongoCredential;
-import static com.mongodb.client.model.Filters.eq;
+import com.mongodb.client.model.Filters;
 
 import org.bson.Document;
 import org.json.JSONArray;
@@ -60,10 +60,20 @@ public class MongoConnector {
     public JSONObject getTrades(String ownerName) {
         MongoCollection<Document> tradesCollection = database.getCollection(TRADE_DATABASE);
 
+        FindIterable<Document> docs = tradesCollection.find(Filters.eq("owner", ownerName));
+        return docsToJsonObject(docs);
+    }
+
+    public JSONObject getTradesForSymbol(String ownerName, String symbol) {
+        MongoCollection<Document> tradesCollection = database.getCollection(TRADE_DATABASE);
+
+        FindIterable<Document> docs = tradesCollection.find(Filters.and(Filters.eq("owner", ownerName), Filters.eq("symbol", symbol)));
+        return docsToJsonObject(docs);
+    }
+
+    private JSONObject docsToJsonObject(FindIterable<Document> docs) {
         JSONArray jsonArray = new JSONArray();
         JSONObject json = new JSONObject();
-
-        FindIterable<Document> docs = tradesCollection.find(eq("owner", ownerName));
         for (Document doc : docs) {
             JSONObject obj = new JSONObject();
 
@@ -77,7 +87,6 @@ public class MongoConnector {
 
         json.put("transactions", jsonArray);
         return json;
-
     }
 
     //StockPurchase purchase = new StockPurchase(tradeID, owner, symbol, shares, price, when, commission);
