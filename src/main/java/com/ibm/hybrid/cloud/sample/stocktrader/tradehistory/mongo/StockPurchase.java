@@ -11,7 +11,7 @@ public class StockPurchase implements Serializable{
     private String owner;
     private String symbol;
     private int shares;
-    private int price;
+    private double price;
     private String when;
     private int commission;
 
