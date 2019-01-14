@@ -3,11 +3,17 @@ package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.MongoCredential;
+import static com.mongodb.client.model.Filters.eq;
 
 import org.bson.Document;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.Arrays;
+import java.util.Set;
 
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo.DemoConsumedMessage;
 
@@ -15,6 +21,7 @@ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo.DemoConsumedMes
 public class MongoConnector {
     public static MongoDatabase database;
     public static MongoClient mongoClient;
+    public static final String TRADE_DATABASE = "test_collection";
 
     //public void initialize(String MONGO_URL) {
     public static void initialize(MongoCredential credential, ServerAddress sa, String collection) { 
@@ -34,7 +41,7 @@ public class MongoConnector {
 
     //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "comission":0  } 
     public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
-        MongoCollection<Document> collection = database.getCollection("test_collection");
+        MongoCollection<Document> collection = database.getCollection(TRADE_DATABASE);
            Document doc = new Document("topic", dcm.getTopic())
                 .append("id", sp.getId())
                 .append("owner", sp.getOwner())
@@ -49,6 +56,29 @@ public class MongoConnector {
     /*public void retrieveMostRecentDoc(){
         return database.getCollection().find().skip(database.getCollection().count() - 1);
     }*/
+
+    public JSONObject getTrades(String ownerName) {
+        MongoCollection<Document> tradesCollection = database.getCollection(TRADE_DATABASE);
+
+        JSONArray jsonArray = new JSONArray();
+        JSONObject json = new JSONObject();
+
+        FindIterable<Document> docs = tradesCollection.find(eq("owner", ownerName));
+        for (Document doc : docs) {
+            JSONObject obj = new JSONObject();
+
+            Set<String> keys = doc.keySet();
+            for (String key : keys) {
+                obj.put(key, doc.get(key).toString());
+            }
+
+            jsonArray.put(obj);
+        }
+
+        json.put("transactions", jsonArray);
+        return json;
+
+    }
 
     //StockPurchase purchase = new StockPurchase(tradeID, owner, symbol, shares, price, when, commission);
     

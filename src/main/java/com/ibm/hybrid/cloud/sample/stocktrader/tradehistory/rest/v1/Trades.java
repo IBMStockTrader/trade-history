@@ -1,13 +1,8 @@
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest.v1;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import javax.json.JsonObject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -15,15 +10,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.ibm.json.java.JSON;
-import com.ibm.json.java.JSONArray;
-import com.ibm.json.java.JSONObject;
 import com.mongodb.client.FindIterable;
 import org.bson.Document;
-import static com.mongodb.client.model.Filters.eq;
+import org.json.JSONObject;
 
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
 
@@ -84,26 +74,9 @@ public class Trades {
     @Path("/trades/{owner}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JSONObject getTrades(@PathParam("owner") String ownerName) {
+    public String getTrades(@PathParam("owner") String ownerName) {
         MongoConnector mConnector = new MongoConnector();
-        MongoClient mClient = mConnector.mongoClient;
-        JSONArray jsonArray = new JSONArray();
-        JSONObject json = new JSONObject();
-        long dbSize = mClient.getDatabase("test").getCollection("test_collection").count();
-        int approxDbSize = Math.toIntExact(dbSize);
-
-        FindIterable<Document> docs = mClient.getDatabase("test").getCollection("test_collection").find(eq("owner", ownerName));
-        for (Document doc : docs) {
-            JSONObject obj = new JSONObject();
-
-            Set<String> keys = doc.keySet();
-            for (String key : keys) {
-                obj.put(key, doc.get(key).toString());
-            }
-
-            jsonArray.add(obj);
-        }
-        json.put("transactions", jsonArray);
-        return json;
+        
+        return mConnector.getTrades(ownerName).toString();
     }
 }
