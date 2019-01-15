@@ -5,19 +5,20 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-
+import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
-import com.ibm.json.java.JSONObject;
 import com.mongodb.client.FindIterable;
 import org.bson.Document;
+import org.json.JSONObject;
 
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
 
-@Path("/v1")
+@Path("/")
 public class Trades {
 
     @Path("/example")
@@ -60,5 +61,48 @@ public class Trades {
         }
 
         return json;
+    }
+
+    @Path("/totalTrades")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public JSONObject totalTrades() {
+        JSONObject json = new JSONObject();
+
+        return json;
+    }
+
+    @Path("/trades/{owner}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getTrades(@PathParam("owner") String ownerName) {
+        MongoConnector mConnector = new MongoConnector();
+        
+        return mConnector.getTrades(ownerName).toString();
+    }
+
+    @Path("/trades/{owner}/{symbol}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getROI(@PathParam("owner") String ownerName, @PathParam("symbol") String symbol) {
+        MongoConnector mConnector = new MongoConnector();
+
+        return mConnector.getTradesForSymbol(ownerName, symbol).toString();
+    }
+
+    @Path("/shares/{owner}/{symbol}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getCurrentShares(@PathParam("owner") String ownerName, @PathParam("symbol") String symbol) {
+        MongoConnector mConnector = new MongoConnector();
+        return mConnector.getSymbolShares(ownerName, symbol).toString();
+    }
+
+    @Path("/shares/{owner}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getPortfolioShares(@PathParam("owner") String ownerName) {
+        MongoConnector mConnector = new MongoConnector();
+        return mConnector.getPortfolioShares(ownerName).toString();
     }
 }
