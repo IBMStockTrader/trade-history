@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import org.bson.Document;
@@ -87,5 +88,21 @@ public class Trades {
         MongoConnector mConnector = new MongoConnector();
 
         return mConnector.getTradesForSymbol(ownerName, symbol).toString();
+    }
+
+    @Path("/shares/{owner}/{symbol}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getCurrentShares(@PathParam("owner") String ownerName, @PathParam("symbol") String symbol) {
+        MongoConnector mConnector = new MongoConnector();
+        return mConnector.getSymbolShares(ownerName, symbol).toString();
+    }
+
+    @Path("/shares/{owner}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getPortfolioShares(@PathParam("owner") String ownerName) {
+        MongoConnector mConnector = new MongoConnector();
+        return mConnector.getPortfolioShares(ownerName).toString();
     }
 }

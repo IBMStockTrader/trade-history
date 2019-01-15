@@ -3,7 +3,9 @@ package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoIterable;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.MapReduceIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.model.Filters;
@@ -61,17 +63,37 @@ public class MongoConnector {
         MongoCollection<Document> tradesCollection = database.getCollection(TRADE_DATABASE);
 
         FindIterable<Document> docs = tradesCollection.find(Filters.eq("owner", ownerName));
-        return docsToJsonObject(docs);
+        return docsToJsonObject(docs, "transactions");
     }
 
     public JSONObject getTradesForSymbol(String ownerName, String symbol) {
         MongoCollection<Document> tradesCollection = database.getCollection(TRADE_DATABASE);
 
         FindIterable<Document> docs = tradesCollection.find(Filters.and(Filters.eq("owner", ownerName), Filters.eq("symbol", symbol)));
-        return docsToJsonObject(docs);
+        return docsToJsonObject(docs, "transactions");
     }
 
-    private JSONObject docsToJsonObject(FindIterable<Document> docs) {
+    public JSONObject getSymbolShares(String ownerName, String symbol) {
+        MongoCollection<Document> tradesCollection = database.getCollection(TRADE_DATABASE);
+
+        MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.symbol, this.shares); }", 
+                                                                        "function(key, values) { return Array.sum(values) }")
+                                            .filter(Filters.and(Filters.eq("owner", ownerName), Filters.eq("symbol", symbol)));
+        JSONObject result = docsToJsonObject(docs, "shares");
+        return result;
+    }
+
+    public JSONObject getPortfolioShares(String ownerName) {
+        MongoCollection<Document> tradesCollection = database.getCollection(TRADE_DATABASE);
+
+        MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.symbol, this.shares); }", 
+                                                                        "function(key, values) { return Array.sum(values) }")
+                                            .filter(Filters.eq("owner", ownerName));
+        JSONObject result = docsToJsonObject(docs, "shares");
+        return result;
+    }
+
+    private JSONObject docsToJsonObject(MongoIterable<Document> docs, String label) {
         JSONArray jsonArray = new JSONArray();
         JSONObject json = new JSONObject();
         for (Document doc : docs) {
@@ -85,7 +107,7 @@ public class MongoConnector {
             jsonArray.put(obj);
         }
 
-        json.put("transactions", jsonArray);
+        json.put(label, jsonArray);
         return json;
     }
 
