@@ -1,7 +1,7 @@
 <server description="Sample Liberty server">
 
   <featureManager>
-      <feature>microprofile-1.2</feature>
+      <feature>microprofile-2.1</feature>
       <feature>jndi-1.0</feature>
       <feature>websocket-1.1</feature>
       <feature>mongodb-2.0</feature>
