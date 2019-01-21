@@ -1,4 +1,4 @@
-package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest.v1;
+package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

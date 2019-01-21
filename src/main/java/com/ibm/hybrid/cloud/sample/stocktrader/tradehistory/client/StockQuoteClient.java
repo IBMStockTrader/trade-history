@@ -17,7 +17,6 @@
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client;
 
 import javax.enterprise.context.Dependent;
-import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -26,11 +25,9 @@ import javax.ws.rs.Produces;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-@ApplicationPath("/")
 @Path("/")
 @Dependent
 @RegisterRestClient
-/** mpRestClient "remote" interface for the stock quote microservice */
 public interface StockQuoteClient {
 	@GET
 	@Path("/")
