@@ -34,15 +34,15 @@ spec:
             value: "{{ .Values.service.servicePort }}"
           - name: APPLICATION_NAME
             value: "{{ .Release.Name }}"
-        #  Uncomment the following lines to get the keystore from the secret
-        #volumeMounts:
-        #  - mountPath: /keystores
-        #    name: kafka-keystore-volume
-        #    readOnly: true
-        #volumes:
-        #- name: kafka-keystore-volume
-        #  secret:
-        #    secretName: trade-history-kafka-keystore   
+        #Uncomment the following lines to get the keystore from the secret
+        volumeMounts:
+         - mountPath: /keystores
+           name: kafka-keystore-volume
+           readOnly: true
+        volumes:
+        - name: kafka-keystore-volume
+         secret:
+           secretName: trade-history-kafka-keystore   
 {{- if .Values.generatedBindings.enabled }}
 {{.Files.Get "bindings.yaml" | indent 10 }}
 {{- end }}
