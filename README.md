@@ -41,7 +41,7 @@ Build the docker container from the root directory:
 
 ```bash
 docker build -t trade-history .
-```g
+```
 To run the docker containter locally:
 
 ```bash
