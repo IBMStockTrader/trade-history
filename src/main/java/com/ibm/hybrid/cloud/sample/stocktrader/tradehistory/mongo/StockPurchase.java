@@ -50,7 +50,7 @@ public class StockPurchase implements Serializable{
         return when;
     }
 
-    public int getCommission() {
+    public double getCommission() {
         return commission;
     }
 

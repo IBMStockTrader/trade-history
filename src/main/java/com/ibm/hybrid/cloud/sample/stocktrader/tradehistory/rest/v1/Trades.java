@@ -8,6 +8,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -100,7 +101,7 @@ public class Trades {
     @Produces(MediaType.APPLICATION_JSON)
     public String getPortfolioShares(@PathParam("owner") String ownerName) {
         MongoConnector mConnector = new MongoConnector();
-        return mConnector.getPortfolioShares(ownerName).toString();
+        return mConnector.getPortfolioSharesJSON(ownerName).toString();
     }
 
     @Path("/equity/{owner}")
@@ -119,5 +120,21 @@ public class Trades {
         String jwt = request.getHeader("Authorization");
 
         return mConnector.getSymbolEquity(jwt, ownerName, symbol).toString();
+    }
+
+    @Path("/notional/{owner}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getNotional(@PathParam("owner") String ownerName, @QueryParam("currentValue") Double portfolioValue) {
+        MongoConnector mConnector = new MongoConnector();
+        return mConnector.getTotalNotional(ownerName).toString();
+    }
+
+    @Path("/returns/{owner}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getReturns(@PathParam("owner") String ownerName, @QueryParam("currentValue") Double portfolioValue) {
+        MongoConnector mConnector = new MongoConnector();
+        return mConnector.getROI(ownerName, portfolioValue).toString();
     }
 }
