@@ -258,6 +258,8 @@ public class MongoConnector {
         Double commissions = getCommissionTotal(ownerName);
         Double profits = equity - notional - commissions;
         Double roi = profits/notional * 100;
+        //TODO: handle NaN and throw exception or null value
+
         return String.format("%.2f", roi) + "%";
     }
 
