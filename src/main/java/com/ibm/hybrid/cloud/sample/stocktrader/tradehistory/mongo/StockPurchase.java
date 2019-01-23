@@ -13,7 +13,7 @@ public class StockPurchase implements Serializable{
     private int shares;
     private double price;
     private String when;
-    private int commission;
+    private double commission;
 
     public StockPurchase(String json) {
         JSONObject jObject = new JSONObject(json);
@@ -23,7 +23,7 @@ public class StockPurchase implements Serializable{
         this.shares = jObject.getInt("shares");
         this.price = jObject.getDouble("price");
         this.when = jObject.getString("when");
-        this.commission = jObject.getInt("commission");
+        this.commission = jObject.getDouble("commission");
     }
 
     public String getId() {
@@ -50,7 +50,7 @@ public class StockPurchase implements Serializable{
         return when;
     }
 
-    public int getCommission() {
+    public double getCommission() {
         return commission;
     }
 

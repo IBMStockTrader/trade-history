@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 public class Consumer {
 
     private final String CONSUMER_GROUP_ID = "CONSUMER_GROUP_ID";
-    private final String APP_NAME = "tradeHistory";
+    private final String APP_NAME = "trade-history";
     private final String DEFAULT = "DEFAULT";
     private final long POLL_DURATION = 1000;
     private final String USERNAME = "token";

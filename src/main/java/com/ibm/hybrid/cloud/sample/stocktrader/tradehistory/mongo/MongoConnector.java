@@ -87,7 +87,7 @@ public class MongoConnector {
             collection.insertOne(doc);
     }*/
 
-    //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "comission":0  } 
+    //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "commission":0  } 
     public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
         //Only add to DB if it's a valid Symbol 
         if( sp.getPrice() > 0 ) {
@@ -100,7 +100,7 @@ public class MongoConnector {
                     .append("price", sp.getPrice())
                     .append("notional", sp.getPrice() * sp.getShares())
                     .append("when", sp.getWhen())
-                    .append("comission", sp.getCommission());
+                    .append("commission", sp.getCommission());
                 collection.insertOne(doc);
         }
     }
@@ -134,28 +134,46 @@ public class MongoConnector {
         return result;
     }
 
-    public JSONObject getPortfolioShares(String ownerName) {
+    private MongoIterable<Document> getPortfolioShares(String ownerName) {
         MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.symbol, this.shares); }", 
                                                                         "function(key, values) { return Array.sum(values) }")
                                             .filter(Filters.eq("owner", ownerName));
-        JSONObject result = docsToJsonObject(docs, "shares");
-        return result;
+        return docs;
     }
 
-    public MongoIterable<Document> getTotalNotional(String ownerName) {
+    public JSONObject getPortfolioSharesJSON(String ownerName) {
+        return docsToJsonObject(getPortfolioShares(ownerName), "shares") ;
+    }
+
+    public MapReduceIterable<Document> getStocksNotional(String ownerName) {
+
         MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.symbol, this.notional); }", 
                                                                         "function(key, values) { return Array.sum(values) }")
                                             .filter(Filters.eq("owner", ownerName));
-        // JSONObject result = docsToJsonObject(docs, "equity");
-        // return result;
         return docs;
+    }
+
+    public Double getTotalNotional(String ownerName) {
+        MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.owner, this.notional); }", 
+                                                                    "function(key, values) { return Array.sum(values) }")
+                                                            .filter(Filters.eq("owner", ownerName));
+        // JSONObject result = docsToJsonObject(docs, "notional");
+        // return result;
+        return docs.first().getDouble("value");
+    }
+
+    public Double getCommissionTotal(String ownerName) {
+        MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.owner, this.commission); }", 
+                                                                    "function(key, values) { return Array.sum(values) }")
+                                                        .filter(Filters.eq("owner", ownerName));
+        return docs.first().getDouble("value");
     }
 
     public JSONObject getSymbolNotional(String ownerName, String symbol) {
         MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.symbol, this.notional); }", 
                                                                         "function(key, values) { return Array.sum(values) }")
                                             .filter(Filters.and(Filters.eq("owner", ownerName), Filters.eq("symbol", symbol)));
-        JSONObject result = docsToJsonObject(docs, "equity");
+        JSONObject result = docsToJsonObject(docs, "notional");
         return result;
     }
 
@@ -171,25 +189,25 @@ public class MongoConnector {
 
         JSONArray jsonArray = new JSONArray();
 
-        MongoIterable<Document> portfolioNotional = getTotalNotional(ownerName);
-        for (Document item : portfolioNotional) {
-            Double shares = (Double) item.get("value");
+        MongoIterable<Document> portfolioShares = getPortfolioShares(ownerName);
+        for (Document item : portfolioShares) {
+            System.out.println("portfolio item: " + item.toString());
 
             String symbol = item.get("_id").toString();
+            Double shares = Double.parseDouble(item.get("value").toString());
             Double equity = getSymbolEquity(jwt, shares, symbol);
 
             JSONObject obj = new JSONObject();
-            obj.put(item.get("_id").toString(), equity);
-            jsonArray.put(obj);
+            obj.put("symbol", symbol);
+            obj.put("equity", equity);
 
+            jsonArray.put(obj);
         }
-        JSONObject result = new JSONObject().put("equity", jsonArray);
+        JSONObject result = new JSONObject().put("portfolio", jsonArray);
         return result;
     }
 
     private Double getSymbolPrice(String jwt, String symbol) {
-        System.out.println("StockQuoteClient: " + stockQuoteClient);
-        System.out.println("JWT: " + jwt);
         Quote quote = new Quote();
         try {
             quote = stockQuoteClient.getStockQuote(jwt, symbol);
@@ -207,9 +225,7 @@ public class MongoConnector {
         return equity;
     }
 
-    
     public Double getSymbolEquity(String jwt, String owner, String symbol) {
-
         Document doc = getSharesCount(owner, symbol).first(); //getSymbolShares(owner, symbol).get("shares");
         Double shares = doc.getDouble("value");
         return getSymbolEquity(jwt, shares, symbol);
@@ -220,18 +236,31 @@ public class MongoConnector {
      * @param ownerName
      * @return total value of equity (no symbol breakdown)
      */
-    public JSONObject getTotalEquity(String ownerName) {
+    public JSONObject getTotalEquity(String ownerName, HttpServletRequest request) {
         //TODO: getPortfolioEquity and reduce value
-        
+        JSONArray portfolioEquity = getPortfolioEquity(ownerName, request).getJSONArray("portfolio");
+        for (Object obj : portfolioEquity) {
+            
+        }
 
         JSONObject result = new JSONObject();
         return result;
     }
 
-    public JSONObject getROI(String ownerName) {
-        //TODO: equity minus notional
-        JSONObject result = new JSONObject();
-        return result;
+    /**
+     * 
+     * @param ownerName - String containing owner name
+     * @param equity - equity value passed in from portfolio, current value of portfolio
+     * @return - String - percentage return 
+     */
+    public String getROI(String ownerName, Double equity) {
+        Double notional = getTotalNotional(ownerName);
+        Double commissions = getCommissionTotal(ownerName);
+        Double profits = equity - notional - commissions;
+        Double roi = profits/notional * 100;
+        //TODO: handle NaN and throw exception or null value
+
+        return String.format("%.2f", roi) + "%";
     }
 
     private JSONObject docsToJsonObject(MongoIterable<Document> docs, String label) {
