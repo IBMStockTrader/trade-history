@@ -87,7 +87,7 @@ public class MongoConnector {
             collection.insertOne(doc);
     }*/
 
-    //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "comission":0  } 
+    //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "commission":0  } 
     public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
         //Only add to DB if it's a valid Symbol 
         if( sp.getPrice() > 0 ) {
@@ -100,7 +100,7 @@ public class MongoConnector {
                     .append("price", sp.getPrice())
                     .append("notional", sp.getPrice() * sp.getShares())
                     .append("when", sp.getWhen())
-                    .append("comission", sp.getCommission());
+                    .append("commission", sp.getCommission());
                 collection.insertOne(doc);
         }
     }
@@ -163,7 +163,7 @@ public class MongoConnector {
     }
 
     public Double getCommissionTotal(String ownerName) {
-        MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.owner, this.comission); }", 
+        MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.owner, this.commission); }", 
                                                                     "function(key, values) { return Array.sum(values) }")
                                                         .filter(Filters.eq("owner", ownerName));
         return docs.first().getDouble("value");

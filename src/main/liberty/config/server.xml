@@ -16,6 +16,6 @@
   <!-- Automatically expand WAR files and EAR files -->
   <applicationManager autoExpand="true"/>
 
-  <webApplication name="tradeHistory" location="${app.location}"/>
+  <webApplication name="trade-history" location="${app.location}"/>
 
 </server>

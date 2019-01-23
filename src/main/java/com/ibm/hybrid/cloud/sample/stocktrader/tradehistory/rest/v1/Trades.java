@@ -1,8 +1,5 @@
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest.v1;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -11,7 +8,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
@@ -24,20 +20,6 @@ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector
 
 @Path("/")
 public class Trades {
-
-    @Path("/example")
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response example() {
-        List<String> list = new ArrayList<>();
-        //return a simple list of strings
-        list.add("Congratulations, your application is up and running");
-        return Response.ok(list.toString()).build();
-    }
-
-    //com.ibm.hybrid.cloud.sample.stocktrader.tradehistory
-    //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "comission":0  } 
-    // URL: /tradeHistory/com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest/v1/trade
 
     @Path("/latestBuy")
     @GET
