@@ -3,8 +3,8 @@
 replicaCount: 1
 revisionHistoryLimit: 1
 image:
-  repository: ibmstocktrader/trade-history
-  tag: latest
+  repository: trade-history:latest
+  #tag: latest
   pullPolicy: IfNotPresent
   resources:
     requests:
