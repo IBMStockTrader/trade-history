@@ -21,9 +21,10 @@ public class Consumer {
     private final String APP_NAME = "trade-history";
     private final String DEFAULT = "DEFAULT";
     private final long POLL_DURATION = 1000;
-    private final String USERNAME = "token";
     private final String API_KEY = System.getenv("CONSUMER_API_KEY");
     private final String MONGO_URL = System.getenv("MONGO_URL");
+    private String KEYSTORE = System.getenv("KAFKA_KEYSTORE");
+    private String USERNAME = System.getenv("KAFKA_USER");
 
     private String consumerGroupId;
     private KafkaConsumer<String, String> kafkaConsumer;
@@ -49,6 +50,8 @@ public class Consumer {
     }
 
     private KafkaConsumer<String, String> createConsumer(String brokerList) {
+        if (USERNAME==null) USERNAME = "token";
+        if (KEYSTORE==null) KEYSTORE = "/config/resources/security/certs.jks";
 
         Properties properties = new Properties();
         properties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerList);
@@ -58,7 +61,7 @@ public class Consumer {
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.put(SslConfigs.SSL_PROTOCOL_CONFIG, "TLSv1.2");
-        properties.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, "resources/security/certs.jks");
+        properties.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, KEYSTORE);
         properties.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "password");
         properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
         String saslJaasConfig = "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""

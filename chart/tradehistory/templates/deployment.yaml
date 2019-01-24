@@ -17,6 +17,15 @@ spec:
       - name: "{{  .Chart.Name  }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        #Uncomment the following lines to get the keystore from the secret
+        volumeMounts:
+        - name: kafka-keystore-volume
+          mountPath: /keystores
+          readOnly: true
+      volumes:
+      - name: kafka-keystore-volume
+        secret:
+          secretName: trade-history-kafka-keystore  
 {{ if .Values.istio.enabled }}
 {{ else }}
         readinessProbe:
