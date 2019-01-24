@@ -1,4 +1,4 @@
-FROM websphere-liberty:webProfile7
+FROM websphere-liberty:webProfile8
 LABEL maintainer="IBM Java Engineering at IBM Cloud"
 COPY /target/liberty/wlp/usr/servers/defaultServer /config/
 COPY /target/liberty/wlp/usr/servers/defaultServer/resources/security/certs.jks output/resources/security/
