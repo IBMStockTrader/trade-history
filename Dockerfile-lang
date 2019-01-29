@@ -1,4 +1,4 @@
-FROM websphere-liberty:webProfile7
+FROM websphere-liberty:webProfile8
 MAINTAINER IBM Java engineering at IBM Cloud
 
 RUN mkdir -m 777 -p /config/resources
