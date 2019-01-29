@@ -75,20 +75,14 @@
 - name: BOOTSTRAP_SERVER
   valueFrom:
     secretKeyRef:
-        name: kafka
-        key: address
+        name: trade-history-kafka
+        key: url
         optional: true
 - name: CONSUMER_API_KEY
   valueFrom:
     secretKeyRef:
-        name: kafka
-        key: api-key2
-        optional: true
-- name: KAFKA_KEYSTORE
-  valueFrom:
-    secretKeyRef:
-        name: kafka
-        key: keystore
+        name: trade-history-kafka
+        key: apikey
         optional: true
 - name: JWT_AUDIENCE
   valueFrom:
