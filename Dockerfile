@@ -1,7 +1,10 @@
 FROM websphere-liberty:webProfile8
 LABEL maintainer="IBM Java Engineering at IBM Cloud"
-COPY /target/liberty/wlp/usr/servers/defaultServer /config/
-COPY /target/liberty/wlp/usr/servers/defaultServer/resources/security/certs.jks output/resources/security/
+COPY src/main/liberty/config /config/
+COPY target/tradehistory-1.0-SNAPSHOT.war /config/apps/trade-history.war
+
+# COPY /target/liberty/wlp/usr/servers/defaultServer /config/
+# COPY /target/liberty/wlp/usr/servers/defaultServer/resources/security/certs.jks output/resources/security/
 
 # Grant write access to apps folder, this is to support old and new docker versions.
 # Liberty document reference : https://hub.docker.com/_/websphere-liberty/

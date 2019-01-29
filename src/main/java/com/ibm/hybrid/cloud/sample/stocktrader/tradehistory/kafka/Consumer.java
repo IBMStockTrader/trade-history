@@ -51,7 +51,7 @@ public class Consumer {
 
     private KafkaConsumer<String, String> createConsumer(String brokerList) {
         if (USERNAME==null) USERNAME = "token";
-        if (KEYSTORE==null) KEYSTORE = "resources/security/certs.jks";
+        if (KEYSTORE==null) KEYSTORE = "/config/resources/security/certs.jks";
 
         Properties properties = new Properties();
         properties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerList);
@@ -64,6 +64,7 @@ public class Consumer {
         properties.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, KEYSTORE);
         properties.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "password");
         properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+        properties.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
         String saslJaasConfig = "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""
             + USERNAME + "\" password=" + API_KEY + ";";
         properties.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
