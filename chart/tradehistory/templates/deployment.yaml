@@ -13,6 +13,10 @@ spec:
         app: "{{  .Chart.Name }}-selector"
         version: "current"
     spec:
+      volumes:
+      - name: kafka-keystore-volume
+        secret:
+          secretName: trade-history-kafka-keystore
       containers:
       - name: "{{  .Chart.Name  }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -22,10 +26,6 @@ spec:
         - name: kafka-keystore-volume
           mountPath: /keystores
           readOnly: true
-      volumes:
-      - name: kafka-keystore-volume
-        secret:
-          secretName: trade-history-kafka-keystore  
 {{ if .Values.istio.enabled }}
 {{ else }}
         readinessProbe:

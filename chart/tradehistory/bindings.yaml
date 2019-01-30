@@ -34,63 +34,69 @@
   valueFrom:
     secretKeyRef:
       name: mongodbenv
-      key: MONGO_USER
+      key: mongo_user
       optional: false
 - name: MONGO_PASSWORD
   valueFrom:
     secretKeyRef:
       name: mongodbenv
-      key: MONGO_PASSWORD
+      key: mongo_password
       optional: false
 - name: MONGO_DATABASE
   valueFrom:
     secretKeyRef:
       name: mongodbenv
-      key: MONGO_DATABASE
+      key: mongo_database
       optional: false
 - name: MONGO_COLLECTION
   valueFrom:
     secretKeyRef:
       name: mongodbenv
-      key: MONGO_COLLECTION
+      key: mongo_collection
       optional: false
 - name: MONGO_IP
   valueFrom:
     secretKeyRef:
       name: mongodbenv
-      key: MONGO_IP
+      key: mongo_ip
       optional: false
 - name: MONGO_PORT
   valueFrom:
     secretKeyRef:
       name: mongodbenv
-      key: MONGO_PORT
+      key: mongo_port
       optional: false
 - name: TOPIC
   valueFrom:
     secretKeyRef:
-        name: kafka
-        key: topic
-        optional: true
+      name: trade-history-kafka
+      key: topic
+      optional: true
 - name: BOOTSTRAP_SERVER
   valueFrom:
     secretKeyRef:
-        name: trade-history-kafka
-        key: url
-        optional: true
+      name: trade-history-kafka
+      key: url
+      optional: true
 - name: CONSUMER_API_KEY
   valueFrom:
     secretKeyRef:
-        name: trade-history-kafka
-        key: apikey
-        optional: true
+      name: trade-history-kafka
+      key: apikey
+      optional: true
+- name: KAFKA_KEYSTORE
+  valueFrom:
+    secretKeyRef:
+      name: trade-history-kafka
+      key: keystore
+      optional: true
 - name: JWT_AUDIENCE
   valueFrom:
-      secretKeyRef:
-        name: jwt 
-        key: audience
+    secretKeyRef:
+      name: jwt 
+      key: audience
 - name: JWT_ISSUER
   valueFrom:
-      secretKeyRef:
-        name: jwt       
-        key: issuer
+    secretKeyRef:
+      name: jwt       
+      key: issuer

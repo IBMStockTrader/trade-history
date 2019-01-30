@@ -26,7 +26,7 @@ public class Consumer {
     private String KEYSTORE = System.getenv("KAFKA_KEYSTORE");
     private String USERNAME = System.getenv("KAFKA_USER");
 
-    private String consumerGroupId;
+    private String consumerGroupId = System.getenv("CONSUMER_GROUP_ID");
     private KafkaConsumer<String, String> kafkaConsumer;
 
     private Logger logger = Logger.getLogger(Consumer.class);
@@ -64,7 +64,6 @@ public class Consumer {
         properties.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, KEYSTORE);
         properties.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "password");
         properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
-        properties.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
         String saslJaasConfig = "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""
             + USERNAME + "\" password=" + API_KEY + ";";
         properties.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
