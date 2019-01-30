@@ -26,7 +26,7 @@ public class Consumer {
     private String KEYSTORE = System.getenv("KAFKA_KEYSTORE");
     private String USERNAME = System.getenv("KAFKA_USER");
 
-    private String consumerGroupId;
+    private String consumerGroupId = System.getenv("CONSUMER_GROUP_ID");
     private KafkaConsumer<String, String> kafkaConsumer;
 
     private Logger logger = Logger.getLogger(Consumer.class);
@@ -51,7 +51,7 @@ public class Consumer {
 
     private KafkaConsumer<String, String> createConsumer(String brokerList) {
         if (USERNAME==null) USERNAME = "token";
-        if (KEYSTORE==null) KEYSTORE = "resources/security/certs.jks";
+        if (KEYSTORE==null) KEYSTORE = "/config/resources/security/certs.jks";
 
         Properties properties = new Properties();
         properties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerList);
