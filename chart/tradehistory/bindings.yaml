@@ -66,12 +66,6 @@
       name: mongodbenv
       key: mongo_port
       optional: false
-- name: TOPIC
-  valueFrom:
-    secretKeyRef:
-      name: trade-history-kafka
-      key: topic
-      optional: true
 - name: BOOTSTRAP_SERVER
   valueFrom:
     secretKeyRef:
@@ -83,13 +77,19 @@
     secretKeyRef:
       name: trade-history-kafka
       key: apikey
-      optional: true
-- name: KAFKA_KEYSTORE
+      optional: false
+- name: CONSUMER_GROUP_ID
   valueFrom:
     secretKeyRef:
-      name: trade-history-kafka
-      key: keystore
-      optional: true
+      name: kafka-extra
+      key: consumer_group_id
+      optional: false
+- name: TOPIC
+  valueFrom:
+    secretKeyRef:
+      name: kafka-extra
+      key: topic 
+      optional: false
 - name: JWT_AUDIENCE
   valueFrom:
     secretKeyRef:
