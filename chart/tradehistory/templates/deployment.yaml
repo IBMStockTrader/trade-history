@@ -43,6 +43,10 @@ spec:
             value: "{{ .Values.service.servicePort }}"
           - name: APPLICATION_NAME
             value: "{{ .Release.Name }}"
+          - name: KAFKA_USER
+            value: {{ .Values.kafka.user }}
+          - name: KAFKA_KEYSTORE
+            value: {{ .Values.kafka.keystorePath }}
 {{- if .Values.generatedBindings.enabled }}
 {{.Files.Get "bindings.yaml" | indent 10 }}
 {{- end }}
