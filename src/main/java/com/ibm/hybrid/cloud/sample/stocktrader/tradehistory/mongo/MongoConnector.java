@@ -32,11 +32,11 @@ import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
 public class MongoConnector {
     private char[] MONGO_PASSWORD =  System.getenv("MONGO_PASSWORD").toCharArray();
-    private String MONGO_DATABASE = System.getenv("MONGO_DATABASE");
+    private String MONGO_AUTH_DB = System.getenv("MONGO_AUTH_DB");
     private String MONGO_USER = System.getenv("MONGO_USER");
     private String MONGO_IP = System.getenv("MONGO_IP");
     private int MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
-    private String MONGO_COLLECTION = System.getenv("MONGO_COLLECTION");
+    private String MONGO_DATABASE = System.getenv("MONGO_DATABASE");
     //TODO: add stock quote url to kube secrets
     private String STOCK_QUOTE_URL = System.getenv("STOCK_QUOTE_URL");
 
@@ -46,7 +46,7 @@ public class MongoConnector {
     public static MongoDatabase database;
     public static MongoClient mongoClient;
     public MongoCollection<Document> tradesCollection;
-    public static final String TRADE_DATABASE = "test_collection";
+    public static final String TRADE_COLLECTION_NAME = "test_collection";
 
     
     @Inject 
@@ -56,15 +56,15 @@ public class MongoConnector {
     public MongoConnector(){
         //Mongo DB Connection
         sa = new ServerAddress(MONGO_IP,MONGO_PORT);
-        credential = MongoCredential.createCredential(MONGO_USER, MONGO_DATABASE, MONGO_PASSWORD);
+        credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
         mongoClient = new MongoClient(sa, Arrays.asList(credential));
-        database = mongoClient.getDatabase( MONGO_COLLECTION );
+        database = mongoClient.getDatabase( MONGO_DATABASE );
         
         try {
-            tradesCollection = database.getCollection(TRADE_DATABASE);
+            tradesCollection = database.getCollection(TRADE_COLLECTION_NAME);
         } catch (IllegalArgumentException e) {
-            database.createCollection(TRADE_DATABASE);
-            tradesCollection = database.getCollection(TRADE_DATABASE);
+            database.createCollection(TRADE_COLLECTION_NAME);
+            tradesCollection = database.getCollection(TRADE_COLLECTION_NAME);
         }
         try{
             URL stockQuoteUrl = new URL (STOCK_QUOTE_URL);
@@ -91,7 +91,6 @@ public class MongoConnector {
     public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
         //Only add to DB if it's a valid Symbol 
         if( sp.getPrice() > 0 ) {
-            MongoCollection<Document> collection = database.getCollection(TRADE_DATABASE);
             Document doc = new Document("topic", dcm.getTopic())
                     .append("id", sp.getId())
                     .append("owner", sp.getOwner())
@@ -101,7 +100,7 @@ public class MongoConnector {
                     .append("notional", sp.getPrice() * sp.getShares())
                     .append("when", sp.getWhen())
                     .append("commission", sp.getCommission());
-                collection.insertOne(doc);
+                tradesCollection.insertOne(doc);
         }
     }
 

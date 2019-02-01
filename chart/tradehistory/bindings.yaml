@@ -42,17 +42,17 @@
       name: mongodbenv
       key: mongo_password
       optional: false
+- name: MONGO_AUTH_DB
+  valueFrom:
+    secretKeyRef:
+      name: mongodbenv
+      key: mongo_auth_db
+      optional: false
 - name: MONGO_DATABASE
   valueFrom:
     secretKeyRef:
       name: mongodbenv
       key: mongo_database
-      optional: false
-- name: MONGO_COLLECTION
-  valueFrom:
-    secretKeyRef:
-      name: mongodbenv
-      key: mongo_collection
       optional: false
 - name: MONGO_IP
   valueFrom:
