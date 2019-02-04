@@ -1,4 +1,4 @@
-FROM websphere-liberty:webProfile8
+FROM websphere-liberty:microProfile2
 LABEL maintainer="IBM Java Engineering at IBM Cloud"
 COPY src/main/liberty/config /config/
 COPY target/tradehistory-1.0-SNAPSHOT.war /config/apps/trade-history.war
