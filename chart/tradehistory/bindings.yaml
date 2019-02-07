@@ -71,7 +71,7 @@
     secretKeyRef:
       name: trade-history-kafka
       key: url
-      optional: true
+      optional: false
 - name: CONSUMER_API_KEY
   valueFrom:
     secretKeyRef:
