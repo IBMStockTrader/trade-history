@@ -1,24 +1,26 @@
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
+
 import org.bson.Document;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.json.JSONObject;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
-
 @Path("/")
+@Api( tags = {"trade-history"} )
 public class Trades {
 
     @Path("/latestBuy")
@@ -27,7 +29,6 @@ public class Trades {
     public JSONObject latestBuy() {
         MongoConnector mConnector = new MongoConnector();
         MongoClient mClient = mConnector.mongoClient;
-        //TODO: com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest call to get data from Mongo API
         JSONObject json = new JSONObject();
         long dbSize = mClient.getDatabase("test").getCollection("test_collection").count();
         int approxDbSize = Math.toIntExact(dbSize);
@@ -52,11 +53,9 @@ public class Trades {
     @Path("/trades/{owner}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get trades",
-        notes = "Get an array of owner's transactions",
-        response = JSONObject.class,
-        responseContainer = "JSONObject")
-    public String getTradesByOwner(@PathParam("owner") String ownerName) {
+    @Operation(summary = "Get trade history of specified owner",
+        description = "Get an array of owner's transactions")
+    public String getTradesByOwner(@Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
         MongoConnector mConnector = new MongoConnector();
         return mConnector.getTrades(ownerName).toString();
     }
@@ -64,16 +63,24 @@ public class Trades {
     @Path("/trades/{owner}/{symbol}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getROI(@PathParam("owner") String ownerName, @PathParam("symbol") String symbol) {
-        MongoConnector mConnector = new MongoConnector();
+    @Operation(summary = "Get trade histoiry of specified owner for the specified stock symbol",
+        description = "Get an array of the owner's transactions for the specified stock symbol")
+    public String getROI(
+        @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
+        @Parameter(description="Symbol name", required = true) @PathParam("symbol") String symbol) {
 
+        MongoConnector mConnector = new MongoConnector();
         return mConnector.getTradesForSymbol(ownerName, symbol).toString();
     }
 
     @Path("/shares/{owner}/{symbol}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getCurrentShares(@PathParam("owner") String ownerName, @PathParam("symbol") String symbol) {
+    @Operation(summary = "Get the number of shares owned by specified owner for a specified stock symbol.")
+    public String getCurrentShares(
+        @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
+        @Parameter(description="Symbol name", required = false) @PathParam("symbol") String symbol) {
+
         MongoConnector mConnector = new MongoConnector();
         return mConnector.getSymbolShares(ownerName, symbol).toString();
     }
@@ -81,33 +88,36 @@ public class Trades {
     @Path("/shares/{owner}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getPortfolioShares(@PathParam("owner") String ownerName) {
+    @Operation(summary = "Get the number of shares of all owned stock by specified owner.")
+    public String getPortfolioShares(@Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
         MongoConnector mConnector = new MongoConnector();
         return mConnector.getPortfolioSharesJSON(ownerName).toString();
     }
 
-    @Path("/equity/{owner}")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getEquity(@PathParam("owner") String ownerName, @Context HttpServletRequest request) {
-        MongoConnector mConnector = new MongoConnector();
-        return mConnector.getPortfolioEquity(ownerName, request).toString();
-    }
+    // @Path("/equity/{owner}")
+    // @GET
+    // @Produces(MediaType.APPLICATION_JSON)
+    // public String getEquity(@PathParam("owner") String ownerName, @Context HttpServletRequest request) {
+    //     MongoConnector mConnector = new MongoConnector();
+    //     return mConnector.getPortfolioEquity(ownerName, request).toString();
+    // }
 
-    @Path("/equity/{owner}/{symbol}")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getSymbolEquity(@PathParam("owner") String ownerName, @PathParam("symbol") String symbol, @Context HttpServletRequest request) {
-        MongoConnector mConnector = new MongoConnector();
-        String jwt = request.getHeader("Authorization");
+    // @Path("/equity/{owner}/{symbol}")
+    // @GET
+    // @Produces(MediaType.APPLICATION_JSON)
+    // public String getSymbolEquity(@PathParam("owner") String ownerName, @PathParam("symbol") String symbol, @Context HttpServletRequest request) {
+    //     MongoConnector mConnector = new MongoConnector();
+    //     String jwt = request.getHeader("Authorization");
 
-        return mConnector.getSymbolEquity(jwt, ownerName, symbol).toString();
-    }
+    //     return mConnector.getSymbolEquity(jwt, ownerName, symbol).toString();
+    // }
 
     @Path("/notional/{owner}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getNotional(@PathParam("owner") String ownerName, @QueryParam("currentValue") Double portfolioValue) {
+    public String getNotional(
+        @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
+
         MongoConnector mConnector = new MongoConnector();
         return mConnector.getTotalNotional(ownerName).toString();
     }
@@ -115,7 +125,11 @@ public class Trades {
     @Path("/returns/{owner}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getReturns(@PathParam("owner") String ownerName, @QueryParam("currentValue") Double portfolioValue) {
+    @Operation(summary = "Get the percentage return on portfolio for the specified owner, with passed in portfolio value.")
+    public String getReturns(
+        @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
+        @Parameter(description="Current portfolio value", required = true) @QueryParam("currentValue") Double portfolioValue) {
+
         MongoConnector mConnector = new MongoConnector();
         return mConnector.getROI(ownerName, portfolioValue).toString();
     }
