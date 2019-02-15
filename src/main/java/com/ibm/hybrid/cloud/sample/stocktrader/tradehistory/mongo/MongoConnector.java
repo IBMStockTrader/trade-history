@@ -259,7 +259,7 @@ public class MongoConnector {
         Double roi = profits/notional * 100;
         //TODO: handle NaN and throw exception or null value
 
-        return String.format("%.2f", roi) + "%";
+        return String.format("%.2f", roi);
     }
 
     private JSONObject docsToJsonObject(MongoIterable<Document> docs, String label) {
