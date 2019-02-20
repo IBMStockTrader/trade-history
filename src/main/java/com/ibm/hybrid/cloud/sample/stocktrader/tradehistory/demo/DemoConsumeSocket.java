@@ -47,10 +47,10 @@ public class DemoConsumeSocket {
 
     private MessageController messageController = null;
 
-    private jdk.internal.instrumentation.Logger logger = Logger.getLogger(DemoConsumeSocket.class);
+    private Logger logger = Logger.getLogger(DemoConsumeSocket.class);
 
     private static MongoConnector MONGO_CONNECTOR;
-    
+
     @Resource
     ManagedExecutorService managedExecutorService;
 
