@@ -53,18 +53,27 @@ public class MongoConnector {
     @RestClient  
     private StockQuoteClient stockQuoteClient;
 
-    public MongoConnector(){
+    public MongoConnector() throws NullPointerException,IllegalArgumentException, MalformedURLException{
         //Mongo DB Connection
-        sa = new ServerAddress(MONGO_IP,MONGO_PORT);
-        credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
-        mongoClient = new MongoClient(sa, Arrays.asList(credential));
-        database = mongoClient.getDatabase( MONGO_DATABASE );
+        try{
+            if(MONGO_IP == null || MONGO_PORT == 0 || MONGO_USER == null || MONGO_AUTH_DB == null || MONGO_PASSWORD == null || MONGO_DATABASE == null || credential == null){
+                throw new NullPointerException("Not all the mongo properties were found.");
+            }
+            sa = new ServerAddress(MONGO_IP,MONGO_PORT);
+            credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
+            mongoClient = new MongoClient(sa, Arrays.asList(credential));
+            database = mongoClient.getDatabase( MONGO_DATABASE );
+        }
+        catch(NullPointerException e){
+            throw e;
+        }
         
         try {
             tradesCollection = database.getCollection(TRADE_COLLECTION_NAME);
         } catch (IllegalArgumentException e) {
             database.createCollection(TRADE_COLLECTION_NAME);
             tradesCollection = database.getCollection(TRADE_COLLECTION_NAME);
+            throw e;
         }
         try{
             URL stockQuoteUrl = new URL (STOCK_QUOTE_URL);
@@ -74,6 +83,7 @@ public class MongoConnector {
                                     .build(StockQuoteClient.class);
         } catch (MalformedURLException e) {
             System.err.println("The given URL is not formatted correctly.");
+            throw e;
         }
     }
 

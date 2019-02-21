@@ -5,6 +5,8 @@ import java.io.StringReader;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.net.MalformedURLException;
+
 
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
@@ -46,6 +48,8 @@ public class DemoConsumeSocket {
     private MessageController messageController = null;
 
     private Logger logger = Logger.getLogger(DemoConsumeSocket.class);
+
+    private static MongoConnector MONGO_CONNECTOR;
 
     @Resource
     ManagedExecutorService managedExecutorService;
@@ -121,12 +125,17 @@ public class DemoConsumeSocket {
         BlockingQueue<DemoConsumedMessage> queue = new LinkedBlockingQueue<>();
         
         void start() {
-            sender.messageQueue = queue;
-            consumer.messageQueue = queue;
-            Thread thread = new Thread(sender);
-            thread.start();
-            thread = new Thread(consumer);
-            thread.start();
+            if(MONGO_CONNECTOR != null){
+                sender.messageQueue = queue;
+                consumer.messageQueue = queue;
+                Thread thread = new Thread(sender);
+                thread.start();
+                thread = new Thread(consumer);
+                thread.start();
+            }
+            else {
+                logger.debug("Mongo not initialized properly");
+            }
         }
         
         void pause() {
@@ -186,24 +195,42 @@ public class DemoConsumeSocket {
 
         @Override
         public void run() {
-            MongoConnector mc = new MongoConnector();
-            while (!exit) {
-                logger.debug("Consuming messages from Kafka");
-                ConsumerRecords<String, String> records = consumer.consume();
-                logger.debug("Processing records");
-                for (ConsumerRecord<String, String> record : records) {
-                    DemoConsumedMessage message = new DemoConsumedMessage(record.topic(), record.partition(),
-                            record.offset(), record.value(), record.timestamp());
-                    
-                    StockPurchase sp = new StockPurchase(message.getValue());
-                    mc.insertStockPurchase(sp, message);
-                    try {
-                        logger.debug(String.format("Consumed message %s",message.encode()));
-                        while (!exit && !messageQueue.offer(message, 1, TimeUnit.SECONDS));
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
+            try{
+                MongoConnector MONGO_CONNECTOR = new MongoConnector();
+                while (!exit) {
+                    logger.debug("Consuming messages from Kafka");
+                    ConsumerRecords<String, String> records = consumer.consume();
+                    logger.debug("Processing records");
+                    for (ConsumerRecord<String, String> record : records) {
+                        DemoConsumedMessage message = new DemoConsumedMessage(record.topic(), record.partition(),
+                                record.offset(), record.value(), record.timestamp());
+                        
+                        StockPurchase sp = new StockPurchase(message.getValue());
+                        MONGO_CONNECTOR.insertStockPurchase(sp, message);
+                        try {
+                            logger.debug(String.format("Consumed message %s",message.encode()));
+                            while (!exit && !messageQueue.offer(message, 1, TimeUnit.SECONDS));
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
                     }
                 }
+            }
+            catch(NullPointerException e){
+                logger.debug(e.getMessage());
+                MONGO_CONNECTOR = null;
+            }  
+            catch(IllegalArgumentException e) {
+                logger.debug(e.getMessage());
+                MONGO_CONNECTOR = null;
+            }
+            catch(MalformedURLException e){
+                logger.debug(e.getMessage());
+                MONGO_CONNECTOR = null;
+            }
+            catch(Exception e){
+                logger.debug(e.getMessage());
+                MONGO_CONNECTOR = null;
             }
             logger.debug("Closing consumer");
             consumer.shutdown();
