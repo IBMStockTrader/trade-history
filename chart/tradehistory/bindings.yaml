@@ -83,7 +83,7 @@
     secretKeyRef:
       name: kafka-extra
       key: consumer_group_id
-      optional: false
+      optional: true  # if not set, defaults to application name
 - name: TOPIC
   valueFrom:
     secretKeyRef:

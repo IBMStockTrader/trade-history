@@ -16,7 +16,7 @@ spec:
       volumes:
       - name: kafka-keystore-volume
         secret:
-          secretName: trade-history-kafka-keystore
+          secretName: kafka-keystore
       containers:
       - name: "{{  .Chart.Name  }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
