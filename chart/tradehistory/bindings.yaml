@@ -69,13 +69,13 @@
 - name: BOOTSTRAP_SERVER
   valueFrom:
     secretKeyRef:
-      name: trade-history-kafka
+      name: kafka-consumer
       key: url
       optional: false
 - name: CONSUMER_API_KEY
   valueFrom:
     secretKeyRef:
-      name: trade-history-kafka
+      name: kafka-consumer
       key: apikey
       optional: false
 - name: CONSUMER_GROUP_ID
@@ -83,7 +83,7 @@
     secretKeyRef:
       name: kafka-extra
       key: consumer_group_id
-      optional: false
+      optional: true  # if not set, defaults to application name
 - name: TOPIC
   valueFrom:
     secretKeyRef:
