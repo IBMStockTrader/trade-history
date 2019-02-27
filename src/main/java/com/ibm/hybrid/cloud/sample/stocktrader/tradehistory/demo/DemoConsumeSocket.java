@@ -28,6 +28,8 @@ import org.apache.log4j.Logger;
 
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.mongodb.MongoClientException;
+import com.mongodb.MongoSocketException;
 
  import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
  import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.StockPurchase;
@@ -47,6 +49,7 @@ public class DemoConsumeSocket {
 
     private Logger logger = Logger.getLogger(DemoConsumeSocket.class);
 
+    private static MongoConnector MONGO_CONNECTOR;
     @Resource
     ManagedExecutorService managedExecutorService;
 
@@ -121,12 +124,19 @@ public class DemoConsumeSocket {
         BlockingQueue<DemoConsumedMessage> queue = new LinkedBlockingQueue<>();
         
         void start() {
-            sender.messageQueue = queue;
-            consumer.messageQueue = queue;
-            Thread thread = new Thread(sender);
-            thread.start();
-            thread = new Thread(consumer);
-            thread.start();
+            if(MONGO_CONNECTOR != null) {
+                sender.messageQueue = queue;
+                consumer.messageQueue = queue;
+                Thread thread = new Thread(sender);
+                thread.start();
+                thread = new Thread(consumer);
+                thread.start();
+            }
+            else {
+                logger.debug("Mongo not initialized properly");
+                stop();
+
+            }
         }
         
         void pause() {
@@ -184,9 +194,27 @@ public class DemoConsumeSocket {
         BlockingQueue<DemoConsumedMessage> messageQueue;
         private static final String filepath="consumed.json";
 
+        public KafkaConsumer(){
+            super();
+            try {
+                MONGO_CONNECTOR = new MongoConnector();
+            }
+            catch(NullPointerException e) {
+                logger.debug(e.getMessage());
+                MONGO_CONNECTOR = null;
+            }  
+            catch(IllegalArgumentException e) {
+                logger.debug(e.getMessage());
+
+                MONGO_CONNECTOR = null;
+            }
+            catch(Exception e) {
+                logger.debug(e.getMessage());
+                MONGO_CONNECTOR = null;
+            }
+        }
         @Override
         public void run() {
-            MongoConnector mc = new MongoConnector();
             while (!exit) {
                 logger.debug("Consuming messages from Kafka");
                 ConsumerRecords<String, String> records = consumer.consume();
@@ -196,7 +224,7 @@ public class DemoConsumeSocket {
                             record.offset(), record.value(), record.timestamp());
                     
                     StockPurchase sp = new StockPurchase(message.getValue());
-                    mc.insertStockPurchase(sp, message);
+                    MONGO_CONNECTOR.insertStockPurchase(sp, message);
                     try {
                         logger.debug(String.format("Consumed message %s",message.encode()));
                         while (!exit && !messageQueue.offer(message, 1, TimeUnit.SECONDS));

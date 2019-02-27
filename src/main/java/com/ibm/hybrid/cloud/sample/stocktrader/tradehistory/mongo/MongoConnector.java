@@ -9,6 +9,7 @@ import com.mongodb.client.MapReduceIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.model.Filters;
+import com.mongodb.MongoSocketException;
 
 import org.bson.Document;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.net.MalformedURLException;
 
 import javax.inject.Inject;
@@ -29,6 +31,8 @@ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.StockQuoteCli
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo.DemoConsumedMessage;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
+
+import java.net.UnknownHostException;
 
 public class MongoConnector {
     private char[] MONGO_PASSWORD =  System.getenv("MONGO_PASSWORD").toCharArray();
@@ -53,39 +57,33 @@ public class MongoConnector {
     @RestClient  
     private StockQuoteClient stockQuoteClient;
 
-    public MongoConnector(){
+    public MongoConnector() throws NullPointerException,IllegalArgumentException,MongoSocketException {
         //Mongo DB Connection
-        sa = new ServerAddress(MONGO_IP,MONGO_PORT);
-        credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
-        mongoClient = new MongoClient(sa, Arrays.asList(credential));
-        database = mongoClient.getDatabase( MONGO_DATABASE );
-        
+        try{
+            if(MONGO_IP == null || MONGO_PORT == 0 || MONGO_USER == null || MONGO_AUTH_DB == null || MONGO_PASSWORD == null || MONGO_DATABASE == null){
+                throw new NullPointerException("One or more mongo properties cannot be found or were not set.");
+            }
+            sa = new ServerAddress(MONGO_IP,MONGO_PORT);
+            credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
+            mongoClient = new MongoClient(sa, Arrays.asList(credential));
+            try {
+                mongoClient.getAddress();
+            } catch (Exception e) {
+                mongoClient.close();
+                throw e;
+            }
+            database = mongoClient.getDatabase( MONGO_DATABASE );        
+        } catch(NullPointerException e){
+            throw e;
+        } 
+
         try {
             tradesCollection = database.getCollection(TRADE_COLLECTION_NAME);
         } catch (IllegalArgumentException e) {
             database.createCollection(TRADE_COLLECTION_NAME);
             tradesCollection = database.getCollection(TRADE_COLLECTION_NAME);
         }
-        try{
-            URL stockQuoteUrl = new URL (STOCK_QUOTE_URL);
-            stockQuoteClient = RestClientBuilder
-                                    .newBuilder()
-                                    .baseUrl(stockQuoteUrl)
-                                    .build(StockQuoteClient.class);
-        } catch (MalformedURLException e) {
-            System.err.println("The given URL is not formatted correctly.");
-        }
     }
-
-    /*public void insertFile (DemoConsumedMessage dcm) {
-        MongoCollection<Document> collection = database.getCollection("test_collection");
-           Document doc = new Document("topic", dcm.getTopic())
-                .append("partition", dcm.getPartition())
-                .append("offset", dcm.getOffset())
-                .append("value", dcm.getValue())
-                .append("timestamp", dcm.getTimestamp());
-            collection.insertOne(doc);
-    }*/
 
     //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "commission":0  } 
     public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
@@ -103,10 +101,6 @@ public class MongoConnector {
                 tradesCollection.insertOne(doc);
         }
     }
-
-    /*public void retrieveMostRecentDoc(){
-        return database.getCollection().find().skip(database.getCollection().count() - 1);
-    }*/
 
     public JSONObject getTrades(String ownerName) {
         // MongoCollection<Document> tradesCollection = database.getCollection(TRADE_DATABASE);
