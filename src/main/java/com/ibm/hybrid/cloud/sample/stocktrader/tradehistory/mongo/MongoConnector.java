@@ -72,7 +72,7 @@ public class MongoConnector {
                 mongoClient.close();
                 throw e;
             }
-            database = mongoClient.getDatabase( MONGO_DATABASE );        
+            database = mongoClient.getDatabase( MONGO_DATABASE );      
         } catch(NullPointerException e){
             throw e;
         } 
