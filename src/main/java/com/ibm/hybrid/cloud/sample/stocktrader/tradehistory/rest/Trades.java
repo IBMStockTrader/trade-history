@@ -32,6 +32,8 @@ import org.json.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+@Path("/")
+@Api( tags = {"trade-history"} )
 public class Trades {
 
     public static MongoConnector mConnector;
