@@ -51,7 +51,7 @@ public class Consumer {
 
     private KafkaConsumer<String, String> createConsumer(String brokerList) {
         if (USERNAME==null) USERNAME = "token";
-        if (KEYSTORE==null) KEYSTORE = "/config/resources/security/certs.jks";
+        if (KEYSTORE==null) KEYSTORE = "resources/security/certs.jks";
 
         Properties properties = new Properties();
         properties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerList);
