@@ -15,6 +15,14 @@ import com.mongodb.client.FindIterable;
 import org.bson.Document;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.info.Info;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.info.License;
+import org.eclipse.microprofile.openapi.annotations.info.Contact;
+
 import org.json.JSONObject;
 
 import io.swagger.annotations.Api;
@@ -22,6 +30,16 @@ import io.swagger.annotations.ApiOperation;
 
 @Path("/")
 @Api( tags = {"trade-history"} )
+@Produces("application/json")
+@OpenAPIDefinition(
+    info = @Info(
+        title = "Trade History",
+        version = "0.0",
+        description = "TradeHitory API",
+        contact = @Contact(url = "https://github.com/IBMStockTrader", name = "IBMStockTrader"),
+        license = @License(name = "License", url = "https://github.com/IBMStockTrader/trade-history/blob/master/LICENSE")
+        )
+)
 public class Trades {
 
     public static MongoConnector mConnector;
@@ -45,6 +63,21 @@ public class Trades {
     @Path("/latestBuy")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses(value = {
+        @APIResponse(
+            responseCode = "404",
+            description = "The mongo database cannot be fround. ",
+            content = @Content(
+                        mediaType = "text/plain")),
+        @APIResponse(
+            responseCode = "200",
+            description = "The latest trade has been retrieved successfully.",
+            content = @Content(
+                        mediaType = "application/json"))})
+    @Operation(
+        summary = "Shows the latest trade.",
+        description = "Retrieve the latest record from the mongo database."
+    )
     public JSONObject latestBuy() {
         JSONObject json = new JSONObject();
         MongoClient mClient = mConnector.mongoClient;
@@ -59,22 +92,24 @@ public class Trades {
         return json;
     }
 
-    @Path("/totalTrades")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public JSONObject totalTrades() {
-        JSONObject json = new JSONObject();
-
-        return json;
-    }
-
     @Path("/trades/{owner}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses(value = {
+        @APIResponse(
+            responseCode = "404",
+            description = "The mongo database cannot be fround. ",
+            content = @Content(
+                        mediaType = "text/plain")),
+        @APIResponse(
+            responseCode = "200",
+            description = "The trades for the requested owned have been retrieved successfully.",
+            content = @Content(
+                        mediaType = "application/json"))})
     @Operation(summary = "Get trade history of specified owner",
         description = "Get an array of owner's transactions")
     public String getTradesByOwner(@Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
-        
+    
         return mConnector.getTrades(ownerName).toString();
 
     }
@@ -82,6 +117,17 @@ public class Trades {
     @Path("/trades/{owner}/{symbol}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses(value = {
+        @APIResponse(
+            responseCode = "404",
+            description = "The mongo database cannot be fround. ",
+            content = @Content(
+                        mediaType = "text/plain")),
+        @APIResponse(
+            responseCode = "200",
+            description = "The ROI for the requested owner and symbol have been retrieved successfully.",
+            content = @Content(
+                        mediaType = "application/json"))})
     @Operation(summary = "Get trade histoiry of specified owner for the specified stock symbol",
         description = "Get an array of the owner's transactions for the specified stock symbol")
     public String getROI(
@@ -95,6 +141,17 @@ public class Trades {
     @Path("/shares/{owner}/{symbol}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses(value = {
+        @APIResponse(
+            responseCode = "404",
+            description = "The mongo database cannot be fround. ",
+            content = @Content(
+                        mediaType = "text/plain")),
+        @APIResponse(
+            responseCode = "200",
+            description = "The ROI for the requested owner and symbol have been retrieved successfully.",
+            content = @Content(
+                        mediaType = "application/json"))})
     @Operation(summary = "Get the number of shares owned by specified owner for a specified stock symbol.")
     public String getCurrentShares(
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
@@ -107,6 +164,17 @@ public class Trades {
     @Path("/shares/{owner}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses(value = {
+        @APIResponse(
+            responseCode = "404",
+            description = "The mongo database cannot be fround. ",
+            content = @Content(
+                        mediaType = "text/plain")),
+        @APIResponse(
+            responseCode = "200",
+            description = "The shares for the requested owner and symbol have been retrieved successfully.",
+            content = @Content(
+                        mediaType = "application/json"))})
     @Operation(summary = "Get the number of shares of all owned stock by specified owner.")
     public String getPortfolioShares(@Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
 
@@ -117,6 +185,17 @@ public class Trades {
     @Path("/notional/{owner}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses(value = {
+        @APIResponse(
+            responseCode = "404",
+            description = "The mongo database cannot be fround. ",
+            content = @Content(
+                        mediaType = "text/plain")),
+        @APIResponse(
+            responseCode = "200",
+            description = "The notional for the requested owner and symbol have been retrieved successfully.",
+            content = @Content(
+                        mediaType = "application/json"))})
     public String getNotional(
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
 
@@ -127,6 +206,17 @@ public class Trades {
     @Path("/returns/{owner}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses(value = {
+        @APIResponse(
+            responseCode = "404",
+            description = "The mongo database cannot be fround. ",
+            content = @Content(
+                        mediaType = "text/plain")),
+        @APIResponse(
+            responseCode = "200",
+            description = "The ROI for the requested owner has been retrieved successfully.",
+            content = @Content(
+                        mediaType = "application/json"))})
     @Operation(summary = "Get the percentage return on portfolio for the specified owner, with passed in portfolio value.")
     public String getReturns(
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
