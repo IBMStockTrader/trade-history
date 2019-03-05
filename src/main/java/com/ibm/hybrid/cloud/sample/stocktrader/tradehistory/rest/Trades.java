@@ -38,7 +38,7 @@ import io.swagger.annotations.ApiOperation;
     info = @Info(
         title = "Trade History",
         version = "0.0",
-        description = "TradeHitory API",
+        description = "TradeHistory API",
         contact = @Contact(url = "https://github.com/IBMStockTrader", name = "IBMStockTrader"),
         license = @License(name = "License", url = "https://github.com/IBMStockTrader/trade-history/blob/master/LICENSE")
         )
@@ -69,7 +69,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The mongo database cannot be fround. ",
+            description = "The Mongo database cannot be found. ",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
@@ -102,7 +102,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The mongo database cannot be fround. ",
+            description = "The Mongo database cannot be found. ",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
@@ -125,7 +125,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The mongo database cannot be fround. ",
+            description = "The Mongo database cannot be found. ",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
@@ -150,7 +150,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The mongo database cannot be fround. ",
+            description = "The Mongo database cannot be found. ",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
@@ -174,7 +174,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The mongo database cannot be fround. ",
+            description = "The Mongo database cannot be found. ",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
@@ -196,7 +196,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The mongo database cannot be fround. ",
+            description = "The Mongo database cannot be found. ",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
@@ -218,7 +218,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The mongo database cannot be fround. ",
+            description = "The Mongo database cannot be found. ",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
