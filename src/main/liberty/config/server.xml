@@ -13,5 +13,7 @@
   <applicationManager autoExpand="true"/>
 
   <webApplication name="trade-history" location="trade-history.war"/>
+  
+  <mpJwt id="myMpJwt" audiences="${env.JWT_AUDIENCE}" issuer="${env.JWT_ISSUER}" keyName="default" ignoreApplicationAuthMethod="false"/>
 
 </server>
