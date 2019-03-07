@@ -27,18 +27,37 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import javax.inject.Inject;
+import javax.inject.Provider;
+
 public class Consumer {
 
     private final String CONSUMER_GROUP_ID = "CONSUMER_GROUP_ID";
     private final String APP_NAME = "trade-history";
     private final String DEFAULT = "DEFAULT";
     private final long POLL_DURATION = 1000;
-    private final String API_KEY = System.getenv("CONSUMER_API_KEY");
-    private final String MONGO_URL = System.getenv("MONGO_URL");
-    private String KEYSTORE = System.getenv("KAFKA_KEYSTORE");
-    private String USERNAME = System.getenv("KAFKA_USER");
 
-    private String consumerGroupId = System.getenv("CONSUMER_GROUP_ID");
+    @Inject
+    @ConfigProperty(name = "CONSUMER_API_KEY")
+    private String API_KEY;
+
+    @Inject
+    @ConfigProperty(name = "MONGO_URL")
+    private String MONGO_URL;
+
+    @Inject
+    @ConfigProperty(name = "KAFKA_KEYSTORE", defaultValue = "resources/security/certs.jks")
+    private String KEYSTORE;
+
+    @Inject
+    @ConfigProperty(name = "KAFKA_USER", defaultValue = "token")
+    private String USERNAME;
+
+    @Inject
+    @ConfigProperty(name = "CONSUMER_GROUP_ID")
+    private String consumerGroupId;
+
     private KafkaConsumer<String, String> kafkaConsumer;
 
     private Logger logger = Logger.getLogger(Consumer.class);
@@ -62,9 +81,6 @@ public class Consumer {
     }
 
     private KafkaConsumer<String, String> createConsumer(String brokerList) {
-        if (USERNAME==null) USERNAME = "token";
-        if (KEYSTORE==null) KEYSTORE = "resources/security/certs.jks";
-
         Properties properties = new Properties();
         properties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
