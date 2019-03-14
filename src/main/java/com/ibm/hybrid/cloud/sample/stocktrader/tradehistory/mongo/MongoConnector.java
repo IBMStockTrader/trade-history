@@ -53,8 +53,6 @@ public class MongoConnector {
     private String MONGO_IP = System.getenv("MONGO_IP");
     private int MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
     private String MONGO_DATABASE = System.getenv("MONGO_DATABASE");
-    //TODO: add stock quote url to kube secrets
-    private String STOCK_QUOTE_URL = System.getenv("STOCK_QUOTE_URL");
 
     private ServerAddress sa;
     private MongoCredential credential; 

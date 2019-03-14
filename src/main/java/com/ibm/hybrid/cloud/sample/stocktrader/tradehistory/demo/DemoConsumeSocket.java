@@ -191,7 +191,6 @@ public class DemoConsumeSocket {
     private class KafkaConsumer implements Runnable {
         volatile boolean exit = false;
         BlockingQueue<DemoConsumedMessage> messageQueue;
-        private static final String filepath="consumed.json";
 
         public KafkaConsumer(){
             super();
