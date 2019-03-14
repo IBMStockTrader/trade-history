@@ -12,32 +12,36 @@
  */
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory;
 
-import java.io.IOException;
+import javax.inject.Inject;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka.Consumer;
 
-import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 
 @Health
-@ApplicationScoped
 public class HealthEndpoint implements HealthCheck {
-    private static final long serialVersionUID = 1L;
+
+    @Inject
+    private Consumer kafka;
 
     @Override
     public HealthCheckResponse call() {
         //TODO: add checks for mongo, kafka, etc
-        HealthCheckResponseBuilder builder = HealthCheckResponse.named("Consumer");
+        HealthCheckResponseBuilder builder = HealthCheckResponse.named("Consumer")
+        .withData("kafka", kafka.isHealthy() ? "available" : "down");
 
-        return builder.up().build();
+        if (kafkaReady()) {
+            return builder.up().build();
+        }
+
+        return builder.down().build();
+    }
+
+    private boolean kafkaReady() {
+        return kafka != null && kafka.isHealthy();
     }
 
 }

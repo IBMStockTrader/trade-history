@@ -14,7 +14,6 @@ package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka;
 
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.UUID;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.CommonClientConfigs;
@@ -28,23 +27,28 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import javax.inject.Inject;
-import javax.inject.Provider;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
+@Dependent
 public class Consumer {
 
-    private final String CONSUMER_GROUP_ID = "CONSUMER_GROUP_ID";
     private final String APP_NAME = "trade-history";
-    private final String DEFAULT = "DEFAULT";
     private final long POLL_DURATION = 1000;
+
+    @Inject
+    @ConfigProperty(name = "BOOTSTRAP_SERVER")
+    private String BOOTSTRAP_SERVER_ENV_KEY;
+
+    @Inject
+    @ConfigProperty(name = "TOPIC")
+    private String TOPIC_ENV_KEY;
 
     @Inject
     @ConfigProperty(name = "CONSUMER_API_KEY")
     private String API_KEY;
-
-    @Inject
-    @ConfigProperty(name = "MONGO_URL")
-    private String MONGO_URL;
 
     @Inject
     @ConfigProperty(name = "KAFKA_KEYSTORE", defaultValue = "resources/security/certs.jks")
@@ -55,28 +59,24 @@ public class Consumer {
     private String USERNAME;
 
     @Inject
-    @ConfigProperty(name = "CONSUMER_GROUP_ID")
-    private String consumerGroupId;
+    @ConfigProperty(name = "CONSUMER_GROUP_ID", defaultValue = APP_NAME)
+    private String CONSUMER_GROUP_ID;
 
-    private KafkaConsumer<String, String> kafkaConsumer;
+    private KafkaConsumer<String, String> kafkaConsumer=null;
 
     private Logger logger = Logger.getLogger(Consumer.class);
 
+    public Consumer(){
 
-    public Consumer(String bootstrapServerAddress, String topic) throws InstantiationException {
+    }
+
+    @PostConstruct
+    private void init() {
         BasicConfigurator.configure();
-        setOrGenerateConsumerGroupId();
+        String bootstrapServerAddress = BOOTSTRAP_SERVER_ENV_KEY.replace("\"", "");
+        String topic = TOPIC_ENV_KEY.replace("\"", "");
 
-        if (topic == null) {
-            throw new InstantiationException("Missing required topic name.");
-        } else if (bootstrapServerAddress == null) {
-            throw new InstantiationException("Missing required bootstrap server address.");
-        }
-        try {
-            kafkaConsumer = createConsumer(bootstrapServerAddress);
-        } catch (KafkaException e) {
-            throw new InstantiationException(e.getMessage());
-        }
+        kafkaConsumer = createConsumer(bootstrapServerAddress);
         kafkaConsumer.subscribe(Arrays.asList(topic));
     }
 
@@ -86,7 +86,7 @@ public class Consumer {
         properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, CONSUMER_GROUP_ID);
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.put(SslConfigs.SSL_PROTOCOL_CONFIG, "TLSv1.2");
         properties.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, KEYSTORE);
@@ -108,23 +108,17 @@ public class Consumer {
         return kafkaConsumer;
     }
 
-    private void setOrGenerateConsumerGroupId() {
-        consumerGroupId = System.getenv(CONSUMER_GROUP_ID);
-        
-        if (consumerGroupId == null) { 
-            consumerGroupId = APP_NAME;
-        } else if (consumerGroupId.equals(DEFAULT)) {
-            consumerGroupId = UUID.randomUUID().toString(); 
-        }
-    }
-
     public ConsumerRecords<String, String> consume() {
         ConsumerRecords<String, String> records = kafkaConsumer.poll(POLL_DURATION);
         return records;
     }
+
+    public boolean isHealthy() {
+        return kafkaConsumer != null;
+    }
     
     public void shutdown() {
         kafkaConsumer.close();
-        logger.info(String.format("Closed consumer: %s", consumerGroupId));
+        logger.info(String.format("Closed consumer: %s", CONSUMER_GROUP_ID));
     }
 }

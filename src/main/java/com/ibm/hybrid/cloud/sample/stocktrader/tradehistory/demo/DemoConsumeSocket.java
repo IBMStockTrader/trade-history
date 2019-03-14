@@ -38,32 +38,19 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.log4j.Logger;
 
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
-import com.mongodb.MongoClientException;
-import com.mongodb.MongoSocketException;
-
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.StockPurchase;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka.Consumer;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 @ServerEndpoint(value = "/democonsume", encoders = { DemoMessageEncoder.class })
 public class DemoConsumeSocket {
 
-    @Inject
-    @ConfigProperty(name = "BOOTSTRAP_SERVER")
-    private String BOOTSTRAP_SERVER_ENV_KEY;
-
-    @Inject
-    @ConfigProperty(name = "TOPIC")
-    private String TOPIC_ENV_KEY;
-
     private Session currentSession = null;
-    private Consumer consumer = null;
+
+    @Inject
+    private Consumer consumer;
 
     private MessageController messageController = null;
 
@@ -77,13 +64,6 @@ public class DemoConsumeSocket {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
         logger.debug(String.format("Socket opened with id %s", session.getId()));
         currentSession = session;
-        String bootstrapServerAddress = BOOTSTRAP_SERVER_ENV_KEY.replace("\"", "");
-        String topic = TOPIC_ENV_KEY.replace("\"", "");
-        try {
-            consumer = new Consumer(bootstrapServerAddress, topic);
-        } catch (InstantiationException e) {
-            onError(e);
-        }
     }
 
     @OnMessage
@@ -155,7 +135,6 @@ public class DemoConsumeSocket {
             else {
                 logger.debug("Mongo not initialized properly");
                 stop();
-
             }
         }
         
