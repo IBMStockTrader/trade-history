@@ -38,10 +38,10 @@ public class MongoIT extends EndpointHelper {
     }
 
 
-    @BeforeClass
+    /*@BeforeClass
     public static void initializeMockMongoDB(){
         ServerAddress sa = new ServerAddress("localhost", TEST_MONGO_PORT);
         MongoClient mongoClient = new MongoClient();
         mConnector = new MongoConnector(mongoClient, testMongoDatabase, testMongoCollection);
-    }
+    }*/
 }

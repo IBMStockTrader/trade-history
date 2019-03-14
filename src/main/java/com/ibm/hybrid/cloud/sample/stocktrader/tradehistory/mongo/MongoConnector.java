@@ -46,13 +46,39 @@ import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
 import java.net.UnknownHostException;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import javax.inject.Inject;
+import javax.inject.Provider;
+
 public class MongoConnector {
-    private char[] MONGO_PASSWORD =  System.getenv("MONGO_PASSWORD").toCharArray();
-    private String MONGO_AUTH_DB = System.getenv("MONGO_AUTH_DB");
-    private String MONGO_USER = System.getenv("MONGO_USER");
-    private String MONGO_IP = System.getenv("MONGO_IP");
-    private int MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
-    private String MONGO_DATABASE = System.getenv("MONGO_DATABASE");
+
+    @Inject
+    @ConfigProperty(name = "MONGO_PASSWORD")
+    private char[] MONGO_PASSWORD;
+
+    @Inject
+    @ConfigProperty(name = "MONGO_AUTH_DB")
+    private String MONGO_AUTH_DB;
+
+    @Inject
+    @ConfigProperty(name = "MONGO_USER")
+    private String MONGO_USER;
+
+    @Inject
+    @ConfigProperty(name = "MONGO_IP")
+    private String MONGO_IP;
+
+    @Inject
+    @ConfigProperty(name = "MONGO_DATABASE")
+    private String MONGO_DATABASE;
+
+    @Inject
+    @ConfigProperty(name = "STOCK_QUOTE_URL")
+    private String STOCK_QUOTE_URL;
+
+    @Inject
+    @ConfigProperty(name = "MONGO_PORT")
+    private int MONGO_PORT;
 
     private ServerAddress sa;
     private MongoCredential credential; 
