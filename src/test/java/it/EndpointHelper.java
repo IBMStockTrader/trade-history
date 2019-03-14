@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/ 
-package test.java.it;
+package it;
 
 import static org.junit.Assert.assertTrue;
 
@@ -30,7 +30,7 @@ public class EndpointHelper {
         String war = System.getProperty("war.context");
     	String apploc = System.getProperty("appLocation");
     	System.out.println("Port: " + port + "\nWar: " + war + "\nApploc: " + apploc);
-        String url = "http://localhost:" + port + "/" + war + endpoint;
+        String url = "http://localhost:" + port + "/" + endpoint;
         System.out.println("Testing " + url);
         Response response = sendRequest(url, "GET");
         int responseCode = response.getStatus();

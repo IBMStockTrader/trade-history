@@ -95,6 +95,13 @@ public class MongoConnector {
         }
     }
 
+    public MongoConnector(MongoClient mongoClient, String mongoDatabase, String mongoCollection) {
+        this.mongoClient = mongoClient;
+        database = mongoClient.getDatabase( mongoDatabase );
+        database.createCollection(mongoCollection);
+        tradesCollection = database.getCollection(mongoCollection);
+    }
+
     //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "commission":0  } 
     public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
         //Only add to DB if it's a valid Symbol 

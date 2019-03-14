@@ -43,7 +43,7 @@
         <cf.context.root>${cf.host}.${cf.context}/${warContext}</cf.context.root>
     
         <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
-
+        <powermock.version>1.7.4</powermock.version>
         <!-- The Cloud Foundry or IBM Cloud organization, username and password can be
             entered here. -->
         <!-- <cf.org></cf.org> -->
@@ -165,6 +165,44 @@
 
     <build>
         <plugins>
+            <plugin>
+            <groupId>com.github.joelittlejohn.embedmongo</groupId>
+            <artifactId>embedmongo-maven-plugin</artifactId>
+            <version>0.4.1</version>
+            <executions>
+                <execution>
+                <id>start</id>
+                <goals>
+                    <goal>start</goal>
+                </goals>
+                <configuration>
+                    <port>37017</port>
+                </configuration>
+                </execution>
+                <execution>
+                <id>mongo-scripts</id>
+                <goals>
+                    <goal>mongo-scripts</goal>
+                </goals>
+                <configuration> 
+                    <scriptsDirectory>...</scriptsDirectory>
+                    <databaseName>TEST_DATABASE</databaseName>
+                </configuration>
+                </execution>
+                <execution>
+                <id>mongo-import</id>
+                <goals>
+                    <goal>mongo-import</goal>
+                </goals>
+                </execution>
+                <execution>
+                <id>stop</id>
+                <goals>
+                    <goal>stop</goal>
+                </goals>
+                </execution>
+            </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
