@@ -29,10 +29,10 @@ import org.apache.log4j.Logger;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@Dependent
+@ApplicationScoped
 public class Consumer {
 
     private final String APP_NAME = "trade-history";
