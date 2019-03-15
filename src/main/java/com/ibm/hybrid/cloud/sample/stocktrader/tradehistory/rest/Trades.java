@@ -41,7 +41,6 @@ import org.json.JSONObject;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 
 @Path("/")
 @Api( tags = {"trade-history"} )
@@ -114,12 +113,12 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The Mongo database cannot be found. ",
+            description = "The Mongo database cannot be found.",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
             responseCode = "200",
-            description = "The trades for the requested owned have been retrieved successfully.",
+            description = "The trades for the requested owner have been retrieved successfully.",
             content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = Quote.class)))})
@@ -137,7 +136,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The Mongo database cannot be found. ",
+            description = "The Mongo database cannot be found.",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
@@ -162,7 +161,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The Mongo database cannot be found. ",
+            description = "The Mongo database cannot be found.",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
@@ -186,7 +185,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The Mongo database cannot be found. ",
+            description = "The Mongo database cannot be found.",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
@@ -230,7 +229,7 @@ public class Trades {
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
-            description = "The Mongo database cannot be found. ",
+            description = "The Mongo database cannot be found.",
             content = @Content(
                         mediaType = "text/plain")),
         @APIResponse(
