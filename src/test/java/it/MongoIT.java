@@ -26,10 +26,27 @@ import org.junit.runner.RunWith;
 import org.junit.Test;
 import org.junit.BeforeClass;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import javax.servlet.http.HttpServletRequest;
+import javax.inject.Inject;
+import javax.inject.Provider;
+
 public class MongoIT extends EndpointHelper {
 
-    private static final String testMongoDatabase = "TEST_MONGO_DATABASE";
-    private static final String testMongoCollection = "TEST_MONGO_COLLECTION";
+    @Inject
+    @ConfigProperty(name = "test.mongo.database")
+    private static String TEST_MONGO_DATABASE;
+
+    @Inject
+    @ConfigProperty(name = "test.mongo.collection")
+    private static String TEST_MONGO_COLLECTION;
+
+
+    @Inject
+    @ConfigProperty(name = "test.mongo.port")
+    private static int TEST_MONGO_PORT;
+
+
     public static MongoConnector mConnector;
 
     @Test
@@ -38,10 +55,11 @@ public class MongoIT extends EndpointHelper {
     }
 
 
-    /*@BeforeClass
-    public static void initializeMockMongoDB(){
-        ServerAddress sa = new ServerAddress("localhost", TEST_MONGO_PORT);
-        MongoClient mongoClient = new MongoClient();
-        mConnector = new MongoConnector(mongoClient, testMongoDatabase, testMongoCollection);
-    }*/
+    // @BeforeClass
+    // public static void initializeMockMongoDB(){
+    //     System.out.println("test.mongo.database" + TEST_MONGO_DATABASE);
+    //     ServerAddress sa = new ServerAddress("localhost", TEST_MONGO_PORT);
+    //     MongoClient mongoClient = new MongoClient(sa);
+    //     mConnector = new MongoConnector(mongoClient, TEST_MONGO_DATABASE, TEST_MONGO_COLLECTION);
+    // }
 }

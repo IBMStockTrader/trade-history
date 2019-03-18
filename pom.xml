@@ -29,10 +29,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-
         <app.name>tradehistory</app.name>
         <testServerHttpPort>9080</testServerHttpPort>
         <testServerHttpsPort>9443</testServerHttpsPort>
+        <testMongoDatabase>TEST_MONGO_DATABASE</testMongoDatabase>
+        <testMongoCollection>TEST_MONGO_COLLECTION</testMongoCollection>
+        <testMongoPort>37017</testMongoPort>
         <warContext>${app.name}</warContext>
         <package.file>${project.build.directory}/${project.artifactId}-${project.version}.zip</package.file>
         <packaging.type>usr</packaging.type>
@@ -166,42 +168,34 @@
     <build>
         <plugins>
             <plugin>
-            <groupId>com.github.joelittlejohn.embedmongo</groupId>
-            <artifactId>embedmongo-maven-plugin</artifactId>
-            <version>0.4.1</version>
-            <executions>
-                <execution>
-                <id>start</id>
-                <goals>
-                    <goal>start</goal>
-                </goals>
-                <configuration>
-                    <port>37017</port>
-                </configuration>
-                </execution>
-                <execution>
-                <id>mongo-scripts</id>
-                <goals>
-                    <goal>mongo-scripts</goal>
-                </goals>
+                <groupId>com.github.joelittlejohn.embedmongo</groupId>
+                <artifactId>embedmongo-maven-plugin</artifactId>
+                <version>0.4.1</version>
                 <configuration> 
                     <scriptsDirectory>...</scriptsDirectory>
-                    <databaseName>TEST_DATABASE</databaseName>
+                    <databaseName>${testMongoDatabase}</databaseName>
                 </configuration>
-                </execution>
-                <execution>
-                <id>mongo-import</id>
-                <goals>
-                    <goal>mongo-import</goal>
-                </goals>
-                </execution>
-                <execution>
-                <id>stop</id>
-                <goals>
-                    <goal>stop</goal>
-                </goals>
-                </execution>
-            </executions>
+                <executions>
+                    <execution>
+                        <id>start</id>
+                        <phase>
+                            pre-integration-test
+                        </phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <port>${testMongoPort}</port>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -466,6 +460,9 @@
                         <app.location>${project.artifactId}-${project.version}.war</app.location>
                         <default.http.port>${testServerHttpPort}</default.http.port>
                         <default.https.port>${testServerHttpsPort}</default.https.port>
+                        <test.mongo.database>${testMongoDatabase}</test.mongo.database>
+                        <test.mongo.collection>${testMongoCollection}</test.mongo.collection>
+                        <test.mongo.port>${testMongoPort}</test.mongo.port>
                     </bootstrapProperties>
                     <features>
                         <acceptLicense>true</acceptLicense>

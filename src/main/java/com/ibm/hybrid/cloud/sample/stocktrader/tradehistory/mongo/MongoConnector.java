@@ -35,9 +35,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.net.MalformedURLException;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.StockQuoteClient;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo.DemoConsumedMessage;
@@ -47,6 +44,7 @@ import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import java.net.UnknownHostException;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import javax.servlet.http.HttpServletRequest;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
