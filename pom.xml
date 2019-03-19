@@ -184,9 +184,6 @@
                         <goals>
                             <goal>start</goal>
                         </goals>
-                        <configuration>
-                            <port>${testMongoPort}</port>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>stop</id>
@@ -299,6 +296,9 @@
                             <systemPropertyVariables>
                                 <liberty.test.port>${testServerHttpPort}</liberty.test.port>
                                 <war.context>${warContext}</war.context>
+                                <test.mongo.database>${testMongoDatabase}</test.mongo.database>
+                                <test.mongo.collection>${testMongoCollection}</test.mongo.collection>
+                                <test.mongo.port>${testMongoPort}</test.mongo.port>
                             </systemPropertyVariables>
                         </configuration>
                     </execution>

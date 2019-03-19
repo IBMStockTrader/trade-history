@@ -33,19 +33,9 @@ import javax.inject.Provider;
 
 public class MongoIT extends EndpointHelper {
 
-    @Inject
-    @ConfigProperty(name = "test.mongo.database")
-    private static String TEST_MONGO_DATABASE;
-
-    @Inject
-    @ConfigProperty(name = "test.mongo.collection")
-    private static String TEST_MONGO_COLLECTION;
-
-
-    @Inject
-    @ConfigProperty(name = "test.mongo.port")
-    private static int TEST_MONGO_PORT;
-
+    private static String TEST_MONGO_DATABASE = System.getProperty("test.mongo.database");
+    private static String TEST_MONGO_COLLECTION = System.getProperty("test.mongo.collection");
+    private static int TEST_MONGO_PORT = Integer.parseInt(System.getProperty("test.mongo.port"));
 
     public static MongoConnector mConnector;
 
@@ -55,11 +45,12 @@ public class MongoIT extends EndpointHelper {
     }
 
 
-    // @BeforeClass
-    // public static void initializeMockMongoDB(){
-    //     System.out.println("test.mongo.database" + TEST_MONGO_DATABASE);
-    //     ServerAddress sa = new ServerAddress("localhost", TEST_MONGO_PORT);
-    //     MongoClient mongoClient = new MongoClient(sa);
-    //     mConnector = new MongoConnector(mongoClient, TEST_MONGO_DATABASE, TEST_MONGO_COLLECTION);
-    // }
+    @BeforeClass
+    public static void initializeMockMongoDB(){
+        ServerAddress sa = new ServerAddress("127.0.0.1", 27017);
+        MongoClient mongoClient = new MongoClient(sa);
+        mConnector = new MongoConnector(mongoClient, TEST_MONGO_DATABASE, TEST_MONGO_COLLECTION);
+
+        
+     }
 }

@@ -13,6 +13,6 @@ public class HealthEndpointIT extends EndpointHelper{
 
     @Test
     public void testHealthEndpoint() throws Exception {
-        testEndpoint("health", "{\"checks\":[{\"data\":{},\"name\":\"Consumer\",\"state\":\"UP\"}],\"outcome\":\"UP\"}");
+        testEndpoint("health", "{\"checks\":[{\"data\":{\"kafka\":\"available\"},\"name\":\"Consumer\",\"state\":\"UP\"}],\"outcome\":\"UP\"}");
     }
 }

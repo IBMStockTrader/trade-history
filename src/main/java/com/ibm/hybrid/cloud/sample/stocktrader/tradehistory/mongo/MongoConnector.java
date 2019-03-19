@@ -50,36 +50,12 @@ import javax.inject.Provider;
 
 public class MongoConnector {
 
-    @Inject
-    @ConfigProperty(name = "MONGO_PASSWORD")
     private char[] MONGO_PASSWORD;
-
-    @Inject
-    @ConfigProperty(name = "MONGO_AUTH_DB")
     private String MONGO_AUTH_DB;
-
-    @Inject
-    @ConfigProperty(name = "MONGO_USER")
     private String MONGO_USER;
-
-    @Inject
-    @ConfigProperty(name = "MONGO_IP")
     private String MONGO_IP;
-
-    @Inject
-    @ConfigProperty(name = "MONGO_DATABASE")
-    private String MONGO_DATABASE;
-
-    @Inject
-    @ConfigProperty(name = "STOCK_QUOTE_URL")
-    private String STOCK_QUOTE_URL;
-
-    @Inject
-    @ConfigProperty(name = "MONGO_PORT")
     private int MONGO_PORT;
-
-    private ServerAddress sa;
-    private MongoCredential credential; 
+    private String MONGO_DATABASE;
 
     public static MongoDatabase database;
     public static MongoClient mongoClient;
@@ -93,12 +69,13 @@ public class MongoConnector {
 
     public MongoConnector() throws NullPointerException,IllegalArgumentException,MongoSocketException {
         //Mongo DB Connection
+        initializeProperties();
         try{
             if(MONGO_IP == null || MONGO_PORT == 0 || MONGO_USER == null || MONGO_AUTH_DB == null || MONGO_PASSWORD == null || MONGO_DATABASE == null){
                 throw new NullPointerException("One or more mongo properties cannot be found or were not set.");
             }
-            sa = new ServerAddress(MONGO_IP,MONGO_PORT);
-            credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
+            ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
+            MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
             mongoClient = new MongoClient(sa, Arrays.asList(credential));
             try {
                 mongoClient.getAddress();
@@ -119,8 +96,17 @@ public class MongoConnector {
         }
     }
 
-    public MongoConnector(MongoClient mongoClient, String mongoDatabase, String mongoCollection) {
-        this.mongoClient = mongoClient;
+    private void initializeProperties(){
+        MONGO_PASSWORD =  System.getenv("MONGO_PASSWORD").toCharArray();
+        MONGO_AUTH_DB = System.getenv("MONGO_AUTH_DB");
+        MONGO_USER = System.getenv("MONGO_USER");
+        MONGO_IP = System.getenv("MONGO_IP");
+        MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
+        MONGO_DATABASE = System.getenv("MONGO_DATABASE");
+    }
+
+    public MongoConnector(MongoClient mClient, String mongoDatabase, String mongoCollection) {
+        mongoClient = mClient;
         database = mongoClient.getDatabase( mongoDatabase );
         database.createCollection(mongoCollection);
         tradesCollection = database.getCollection(mongoCollection);
