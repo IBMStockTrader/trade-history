@@ -29,10 +29,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-
         <app.name>tradehistory</app.name>
         <testServerHttpPort>9080</testServerHttpPort>
         <testServerHttpsPort>9443</testServerHttpsPort>
+        <testMongoDatabase>TEST_MONGO_DATABASE</testMongoDatabase>
+        <testMongoCollection>TEST_MONGO_COLLECTION</testMongoCollection>
+        <testMongoPort>27017</testMongoPort>
+        <testMongoHost>127.0.0.1</testMongoHost>
         <warContext>${app.name}</warContext>
         <package.file>${project.build.directory}/${project.artifactId}-${project.version}.zip</package.file>
         <packaging.type>usr</packaging.type>
@@ -43,7 +46,7 @@
         <cf.context.root>${cf.host}.${cf.context}/${warContext}</cf.context.root>
     
         <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
-
+        <powermock.version>1.7.4</powermock.version>
         <!-- The Cloud Foundry or IBM Cloud organization, username and password can be
             entered here. -->
         <!-- <cf.org></cf.org> -->
@@ -166,6 +169,33 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.github.joelittlejohn.embedmongo</groupId>
+                <artifactId>embedmongo-maven-plugin</artifactId>
+                <version>0.4.1</version>
+                <configuration> 
+                    <scriptsDirectory>...</scriptsDirectory>
+                    <databaseName>${testMongoDatabase}</databaseName>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start</id>
+                        <phase>
+                            pre-integration-test
+                        </phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.6</version>
@@ -267,6 +297,10 @@
                             <systemPropertyVariables>
                                 <liberty.test.port>${testServerHttpPort}</liberty.test.port>
                                 <war.context>${warContext}</war.context>
+                                <test.mongo.database>${testMongoDatabase}</test.mongo.database>
+                                <test.mongo.collection>${testMongoCollection}</test.mongo.collection>
+                                <test.mongo.port>${testMongoPort}</test.mongo.port>
+                                <test.mongo.host>${testMongoHost}</test.mongo.host>
                             </systemPropertyVariables>
                         </configuration>
                     </execution>
@@ -428,6 +462,9 @@
                         <app.location>${project.artifactId}-${project.version}.war</app.location>
                         <default.http.port>${testServerHttpPort}</default.http.port>
                         <default.https.port>${testServerHttpsPort}</default.https.port>
+                        <test.mongo.database>${testMongoDatabase}</test.mongo.database>
+                        <test.mongo.collection>${testMongoCollection}</test.mongo.collection>
+                        <test.mongo.port>${testMongoPort}</test.mongo.port>
                     </bootstrapProperties>
                     <features>
                         <acceptLicense>true</acceptLicense>

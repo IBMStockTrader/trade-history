@@ -40,6 +40,7 @@ import org.apache.log4j.Logger;
 
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.StockPurchase;
+import com.sun.corba.se.spi.activation._ActivatorImplBase;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka.Consumer;
 
 import javax.inject.Inject;
@@ -222,7 +223,7 @@ public class DemoConsumeSocket {
                             record.offset(), record.value(), record.timestamp());
                     
                     StockPurchase sp = new StockPurchase(message.getValue());
-                    MONGO_CONNECTOR.insertStockPurchase(sp, message);
+                    MONGO_CONNECTOR.insertStockPurchase(sp, message.getTopic());
                     try {
                         logger.debug(String.format("Consumed message %s",message.encode()));
                         while (!exit && !messageQueue.offer(message, 1, TimeUnit.SECONDS));

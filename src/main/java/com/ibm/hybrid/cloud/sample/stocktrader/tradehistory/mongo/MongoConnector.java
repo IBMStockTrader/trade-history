@@ -35,9 +35,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.net.MalformedURLException;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.StockQuoteClient;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo.DemoConsumedMessage;
@@ -46,16 +43,19 @@ import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
 import java.net.UnknownHostException;
 
-public class MongoConnector {
-    private char[] MONGO_PASSWORD =  System.getenv("MONGO_PASSWORD").toCharArray();
-    private String MONGO_AUTH_DB = System.getenv("MONGO_AUTH_DB");
-    private String MONGO_USER = System.getenv("MONGO_USER");
-    private String MONGO_IP = System.getenv("MONGO_IP");
-    private int MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
-    private String MONGO_DATABASE = System.getenv("MONGO_DATABASE");
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import javax.servlet.http.HttpServletRequest;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
-    private ServerAddress sa;
-    private MongoCredential credential; 
+public class MongoConnector {
+
+    private char[] MONGO_PASSWORD;
+    private String MONGO_AUTH_DB;
+    private String MONGO_USER;
+    private String MONGO_IP;
+    private int MONGO_PORT;
+    private String MONGO_DATABASE;
 
     public static MongoDatabase database;
     public static MongoClient mongoClient;
@@ -69,12 +69,13 @@ public class MongoConnector {
 
     public MongoConnector() throws NullPointerException,IllegalArgumentException,MongoSocketException {
         //Mongo DB Connection
+        initializeProperties();
         try{
             if(MONGO_IP == null || MONGO_PORT == 0 || MONGO_USER == null || MONGO_AUTH_DB == null || MONGO_PASSWORD == null || MONGO_DATABASE == null){
                 throw new NullPointerException("One or more mongo properties cannot be found or were not set.");
             }
-            sa = new ServerAddress(MONGO_IP,MONGO_PORT);
-            credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
+            ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
+            MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
             mongoClient = new MongoClient(sa, Arrays.asList(credential));
             try {
                 mongoClient.getAddress();
@@ -95,11 +96,27 @@ public class MongoConnector {
         }
     }
 
+    private void initializeProperties(){
+        MONGO_PASSWORD =  System.getenv("MONGO_PASSWORD").toCharArray();
+        MONGO_AUTH_DB = System.getenv("MONGO_AUTH_DB");
+        MONGO_USER = System.getenv("MONGO_USER");
+        MONGO_IP = System.getenv("MONGO_IP");
+        MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
+        MONGO_DATABASE = System.getenv("MONGO_DATABASE");
+    }
+
+    public MongoConnector(MongoClient mClient, String mongoDatabase, String mongoCollection) {
+        mongoClient = mClient;
+        database = mongoClient.getDatabase( mongoDatabase );
+        database.createCollection(mongoCollection);
+        tradesCollection = database.getCollection(mongoCollection);
+    }
+
     //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "commission":0  } 
-    public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
+    public void insertStockPurchase(StockPurchase sp, String topic) {
         //Only add to DB if it's a valid Symbol 
         if( sp.getPrice() > 0 ) {
-            Document doc = new Document("topic", dcm.getTopic())
+            Document doc = new Document("topic", topic)
                     .append("id", sp.getId())
                     .append("owner", sp.getOwner())
                     .append("symbol", sp.getSymbol())
