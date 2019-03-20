@@ -113,10 +113,10 @@ public class MongoConnector {
     }
 
     //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "commission":0  } 
-    public void insertStockPurchase(StockPurchase sp, DemoConsumedMessage dcm) {
+    public void insertStockPurchase(StockPurchase sp, String topic) {
         //Only add to DB if it's a valid Symbol 
         if( sp.getPrice() > 0 ) {
-            Document doc = new Document("topic", dcm.getTopic())
+            Document doc = new Document("topic", topic)
                     .append("id", sp.getId())
                     .append("owner", sp.getOwner())
                     .append("symbol", sp.getSymbol())

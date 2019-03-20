@@ -34,7 +34,8 @@
         <testServerHttpsPort>9443</testServerHttpsPort>
         <testMongoDatabase>TEST_MONGO_DATABASE</testMongoDatabase>
         <testMongoCollection>TEST_MONGO_COLLECTION</testMongoCollection>
-        <testMongoPort>37017</testMongoPort>
+        <testMongoPort>27017</testMongoPort>
+        <testMongoHost>127.0.0.1</testMongoHost>
         <warContext>${app.name}</warContext>
         <package.file>${project.build.directory}/${project.artifactId}-${project.version}.zip</package.file>
         <packaging.type>usr</packaging.type>
@@ -299,6 +300,7 @@
                                 <test.mongo.database>${testMongoDatabase}</test.mongo.database>
                                 <test.mongo.collection>${testMongoCollection}</test.mongo.collection>
                                 <test.mongo.port>${testMongoPort}</test.mongo.port>
+                                <test.mongo.host>${testMongoHost}</test.mongo.host>
                             </systemPropertyVariables>
                         </configuration>
                     </execution>

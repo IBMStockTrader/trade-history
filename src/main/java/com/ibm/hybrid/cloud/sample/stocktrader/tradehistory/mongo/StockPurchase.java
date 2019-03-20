@@ -38,6 +38,18 @@ public class StockPurchase implements Serializable{
         this.commission = jObject.getDouble("commission");
     }
 
+    public StockPurchase(String id, String owner, String symbol, int shares, 
+        double price, String when, double commission)  {
+        this.id = id;
+        this.owner = owner;
+        this.symbol = symbol;
+        this.shares = shares;
+        this.price = price;
+        this.when = when;
+        this.commission = commission;
+    }
+
+
     public String getId() {
         return id;
     }
