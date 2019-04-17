@@ -6,7 +6,7 @@ spec:
   # if your cluster supports it, uncomment the following to automatically create
   # an external load-balanced IP for the frontend service.
   #type: LoadBalancer
-  type: NodePort
+  #type: NodePort
   ports:
   # the port that this service should serve on
   - name: http
@@ -21,6 +21,11 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: "tradehistory-deployment"
+  labels:
+    app: stock-trader
+  annotations: { 
+    prism.subkind: Liberty
+  }
 spec:
   # this replicas value is default
   # modify it according to your case
@@ -29,16 +34,49 @@ spec:
     metadata:
       labels:
         app: "tradehistory-selector"
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       containers:
       - name: tradehistory
-        image: tradehistory:latest
+        image: ibmstocktrader/tradehistory:latest
+        ports:
+          - containerPort: 9080
+          - containerPort: 9443
+        imagePullPolicy: Always
         readinessProbe:
           httpGet:
             path: /health
             port: 9080
-          initialDelaySeconds: 20
-        # resources:
-        #   requests:
-        #     cpu: 100m
-        #     memory: 100Mi
+          initialDelaySeconds: 30
+          periodSeconds: 6
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9080
+          initialDelaySeconds: 60
+          periodSeconds: 6
+        resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+---
+#Deploy the autoscaler
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: tradehistory
+  labels:
+    app: stock-trader
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tradehistory
+  maxReplicas: 10
+  minReplicas: 2
+  targetCPUUtilizationPercentage: 60
+  
