@@ -40,6 +40,77 @@ spec:
       containers:
       - name: tradehistory
         image: ibmstocktrader/tradehistory:latest
+        env:
+          - name: JWT_AUDIENCE
+            valueFrom:
+              secretKeyRef:
+                name: jwt 
+                key: audience
+          - name: JWT_ISSUER
+            valueFrom:
+              secretKeyRef:
+                name: jwt
+                key: issuer
+          - name: MONGO_USER
+            valueFrom:
+              secretKeyRef:
+                name: mongodbenv
+                key: mongo_user
+                optional: false
+          - name: MONGO_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mongodbenv
+                key: mongo_password
+                optional: false
+          - name: MONGO_AUTH_DB
+            valueFrom:
+              secretKeyRef:
+                name: mongodbenv
+                key: mongo_auth_db
+                optional: false
+          - name: MONGO_DATABASE
+            valueFrom:
+              secretKeyRef:
+                name: mongodbenv
+                key: mongo_database
+                optional: false
+          - name: MONGO_IP
+            valueFrom:
+              secretKeyRef:
+                name: mongodbenv
+                key: mongo_ip
+                optional: false
+          - name: MONGO_PORT
+            valueFrom:
+              secretKeyRef:
+                name: mongodbenv
+                key: mongo_port
+                optional: false
+          - name: BOOTSTRAP_SERVER
+            valueFrom:
+              secretKeyRef:
+                name: kafka-consumer
+                key: url
+                optional: false
+          - name: CONSUMER_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: kafka-consumer
+                key: apikey
+                optional: false
+          - name: CONSUMER_GROUP_ID
+            valueFrom:
+              secretKeyRef:
+                name: kafka-extra
+                key: consumer_group_id
+                optional: true  # if not set, defaults to application name
+          - name: TOPIC
+            valueFrom:
+              secretKeyRef:
+                name: kafka-extra
+                key: topic 
+                optional: false
         ports:
           - containerPort: 9080
           - containerPort: 9443
