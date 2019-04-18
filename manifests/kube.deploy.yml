@@ -27,8 +27,6 @@ metadata:
     prism.subkind: Liberty
   }
 spec:
-  # this replicas value is default
-  # modify it according to your case
   replicas: 1
   template:
     metadata:
@@ -139,7 +137,7 @@ spec:
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: tradehistory
+  name: tradehistory-hpa
   labels:
     app: stock-trader
 spec:
