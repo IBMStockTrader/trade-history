@@ -34,10 +34,11 @@ spec:
         app: "tradehistory-selector"
       annotations:
         prometheus.io/scrape: 'true'
+        prometheus.io/port: "9080"
     spec:
       containers:
       - name: tradehistory
-        image: ibmstocktrader/tradehistory:latest
+        image: ibmstocktrader/trade-history:latest
         env:
           - name: JWT_AUDIENCE
             valueFrom:
