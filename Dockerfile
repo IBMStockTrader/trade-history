@@ -1,26 +1,28 @@
-FROM websphere-liberty:microProfile2
+#       Copyright 2017-2019 IBM Corp All Rights Reserved
+
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+
+#       http://www.apache.org/licenses/LICENSE-2.0
+
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+# FROM websphere-liberty:microProfile2
+FROM open-liberty:microProfile2
 LABEL maintainer="IBM Java Engineering at IBM Cloud"
-COPY src/main/liberty/config /config/
-COPY target/tradehistory-1.0-SNAPSHOT.war /config/apps/trade-history.war
 
-# COPY /target/liberty/wlp/usr/servers/defaultServer /config/
-# COPY /target/liberty/wlp/usr/servers/defaultServer/resources/security/certs.jks output/resources/security/
+COPY --chown=1001:0 src/main/liberty/config /config/
+COPY --chown=1001:0 target/tradehistory-1.0-SNAPSHOT.war /config/apps/trade-history.war
 
-# Grant write access to apps folder, this is to support old and new docker versions.
-# Liberty document reference : https://hub.docker.com/_/websphere-liberty/
-USER root
-RUN chmod g+w /config/apps
-USER 1001
-# Install required features if not present, install APM Data Collector
-RUN installUtility install --acceptLicense defaultServer && installUtility install --acceptLicense apmDataCollector-7.4
+# COPY --chown=1001:0 /target/liberty/wlp/usr/servers/defaultServer /config/
+# COPY --chown=1001:0 /target/liberty/wlp/usr/servers/defaultServer/resources/security/certs.jks output/resources/security/
+
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib:/opt/ibm/wlp/usr/extension/liberty_dc/toolkit/lib/lx8266 \
  JVM_ARGS="$JVM_ARGS -agentlib:am_ibm_16=defaultServer -Xbootclasspath/p:/opt/ibm/wlp/usr/extension/liberty_dc/toolkit/lib/bcm-bootstrap.jar -Xverbosegclog:/logs/gc.log,1,10000 -verbosegc -Djava.security.policy=/opt/ibm/wlp/usr/extension/liberty_dc/itcamdc/etc/datacollector.policy -Dliberty.home=/opt/ibm/wlp"
 
-# Upgrade to production license if URL to JAR provided
-ARG LICENSE_JAR_URL
-RUN \ 
-  if [ $LICENSE_JAR_URL ]; then \
-    wget $LICENSE_JAR_URL -O /tmp/license.jar \
-    && java -jar /tmp/license.jar -acceptLicense /opt/ibm \
-    && rm /tmp/license.jar; \
-  fi
+RUN configure.sh
