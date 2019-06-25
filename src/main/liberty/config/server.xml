@@ -19,7 +19,7 @@
       <feature>websocket-1.1</feature>
   </featureManager>
 
-  <logging consoleLogLevel="INFO" consoleSource="message,ffdc" consoleFormat="json" traceSpecification="*=info"/>
+  <logging consoleLogLevel="INFO" traceSpecification="*=info"/>
 
   <httpEndpoint httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint" host="*" />
 
