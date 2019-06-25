@@ -13,7 +13,7 @@
 #   limitations under the License.
 
 # FROM websphere-liberty:microProfile2
-FROM open-liberty:microProfile2
+FROM openliberty/open-liberty:microProfile2-ubi-min
 LABEL maintainer="IBM Java Engineering at IBM Cloud"
 
 COPY --chown=1001:0 src/main/liberty/config /config/
