@@ -13,7 +13,7 @@
 
 <server description="Trade History server">
   <featureManager>
-      <feature>microprofile-2.2</feature>
+      <feature>microprofile-3.0</feature>
       <feature>monitor-1.0</feature>
       <feature>jndi-1.0</feature>
       <feature>websocket-1.1</feature>
