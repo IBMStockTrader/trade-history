@@ -13,13 +13,18 @@
 #   limitations under the License.
 
 # FROM websphere-liberty:microProfile3
-FROM openliberty/open-liberty:kernel-java11-openj9-ubi
+FROM openliberty/open-liberty:kernel-slim-java11-openj9-ubi
 
 # Following line is a workaround for an issue where sometimes the server somehow loads the built-in server.xml,
 # rather than the one I copy into the image.  That shouldn't be possible, but alas, it appears to be some Docker bug.
 RUN rm /opt/ol/wlp/usr/servers/defaultServer/server.xml
 
 COPY --chown=1001:0 src/main/liberty/config /config/
+
+# This script will add the requested XML snippets to enable Liberty features and grow image to be fit-for-purpose using featureUtility. 
+# Only available in 'kernel-slim'. The 'full' tag already includes all features for convenience.
+RUN features.sh
+
 COPY --chown=1001:0 target/tradehistory-1.0-SNAPSHOT.war /config/apps/trade-history.war
 
 # COPY --chown=1001:0 /target/liberty/wlp/usr/servers/defaultServer /config/
