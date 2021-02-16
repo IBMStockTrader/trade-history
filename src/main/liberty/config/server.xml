@@ -28,6 +28,14 @@
 
   <webApplication name="trade-history" location="trade-history.war"/>
   
+  <keyStore id="defaultKeyStore" password="St0ckTr@der" type="pkcs12"
+        location="${server.config.dir}/resources/security/key.p12" />
+
+  <keyStore id="defaultTrustStore" password="St0ckTr@der" type="pkcs12"
+        location="${server.config.dir}/resources/security/trust.p12" />
+
+  <ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" trustStoreRef="defaultTrustStore" trustDefaultCerts="true" />
+
   <mpJwt id="myMpJwt" audiences="${env.JWT_AUDIENCE}" issuer="${env.JWT_ISSUER}" keyName="default" ignoreApplicationAuthMethod="false"/>
 
   <mpMetrics authentication="false"/>
