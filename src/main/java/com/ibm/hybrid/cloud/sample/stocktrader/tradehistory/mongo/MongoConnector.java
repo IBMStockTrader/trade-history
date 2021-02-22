@@ -14,6 +14,7 @@ package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.FindIterable;
@@ -76,14 +77,15 @@ public class MongoConnector {
             }
             ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
             MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
-            mongoClient = new MongoClient(sa, Arrays.asList(credential));
+            MongoClientOptions options = MongoClientOptions.builder().sslEnabled(true).build();
+            mongoClient = new MongoClient(sa, credential, options);
             try {
                 mongoClient.getAddress();
             } catch (Exception e) {
                 mongoClient.close();
                 throw e;
             }
-            database = mongoClient.getDatabase( MONGO_DATABASE );      
+            database = mongoClient.getDatabase( MONGO_DATABASE );    
         } catch(NullPointerException e){
             throw e;
         } 

@@ -82,19 +82,19 @@ public class Consumer {
 
     private KafkaConsumer<String, String> createConsumer(String brokerList) {
         Properties properties = new Properties();
+        //common Kafka configs
         properties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+        properties.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + USERNAME + "\" password=\"" + API_KEY + "\";");
+        properties.put(SslConfigs.SSL_PROTOCOL_CONFIG, "TLSv1.2");
+        properties.put(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, "TLSv1.2");
+        properties.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "HTTPS");
+        //Kafka consumer configs
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, CONSUMER_GROUP_ID);
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        properties.put(SslConfigs.SSL_PROTOCOL_CONFIG, "TLSv1.2");
-        properties.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, KEYSTORE);
-        properties.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "password");
-        properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
-        String saslJaasConfig = "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""
-            + USERNAME + "\" password=" + API_KEY + ";";
-        properties.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
 
         KafkaConsumer<String, String> kafkaConsumer = null;
 
