@@ -225,7 +225,7 @@ public class Trades {
 
     @Path("/returns/{owner}")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
