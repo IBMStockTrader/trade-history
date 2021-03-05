@@ -16,6 +16,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -24,6 +25,8 @@ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.bson.Document;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -42,6 +45,13 @@ import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
 
 import io.swagger.annotations.Api;
 
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka.Consumer;
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo.*;
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.BlockingQueue;
+
 @Path("/")
 @Api( tags = {"trade-history"} )
 @Produces("application/json")
@@ -56,12 +66,99 @@ import io.swagger.annotations.Api;
 )
 public class Trades {
 
+    
+    @Inject
+    private Consumer consumer;
+
+    private MessageController messageController = null;
+    private static MongoConnector MONGO_CONNECTOR;
     public static MongoConnector mConnector;
+
+
+
+    private class MessageController {
+        KafkaConsumer consumer = new KafkaConsumer();
+        BlockingQueue<DemoConsumedMessage> queue = new LinkedBlockingQueue<>();
+        
+        void start() {
+            if(MONGO_CONNECTOR != null) {
+                consumer.messageQueue = queue;
+                Thread thread = new Thread(consumer);
+                thread.start();
+            }
+            else {
+                System.out.println("Mongo not initialized properly");
+                stop();
+            }
+        }
+        
+        void pause() {
+        }
+        
+        void resume() {
+        }
+        
+        void stop() {
+            consumer.exit = true;
+        }
+    }
+
+    private class KafkaConsumer implements Runnable {
+        volatile boolean exit = false;
+        BlockingQueue<DemoConsumedMessage> messageQueue;
+
+        public KafkaConsumer(){
+            super();
+            try {
+                MONGO_CONNECTOR = new MongoConnector();
+                mConnector = MONGO_CONNECTOR;
+            }
+            catch(NullPointerException e) {
+                e.printStackTrace();
+                MONGO_CONNECTOR = null;
+            }  
+            catch(IllegalArgumentException e) {
+                e.printStackTrace();
+                MONGO_CONNECTOR = null;
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+                MONGO_CONNECTOR = null;
+            }
+        }
+        @Override
+        public void run() {
+            while (!exit) {
+                System.out.println("Consuming messages from Kafka");
+                ConsumerRecords<String, String> records = consumer.consume();
+                System.out.println("Processing records");
+                for (ConsumerRecord<String, String> record : records) {
+                    DemoConsumedMessage message = new DemoConsumedMessage(record.topic(), record.partition(),
+                            record.offset(), record.value(), record.timestamp());
+                    
+                    StockPurchase sp = new StockPurchase(message.getValue());
+                    MONGO_CONNECTOR.insertStockPurchase(sp, message.getTopic());
+                    try {
+                        System.out.println(String.format("Consumed message %s",message.encode()));
+                        while (!exit && !messageQueue.offer(message, 1, TimeUnit.SECONDS));
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+            System.out.println("Closing consumer");
+            consumer.shutdown();
+            System.out.println("Consumer closed");
+        }
+
+    }
 
     @PostConstruct
     public void initialize(){
         try {
-            MongoConnector mConnector = new MongoConnector();
+            System.out.println("Starting message consumption");
+            messageController = new MessageController();
+            messageController.start();
         }
         catch( NullPointerException e) {
             System.out.println(e.getMessage());
@@ -95,7 +192,7 @@ public class Trades {
     )
     public String latestBuy() {
         JSONObject json = new JSONObject();
-        MongoClient mClient = mConnector.mongoClient;
+        MongoClient mClient = MongoConnector.mongoClient;
         
         long dbSize = mClient.getDatabase("test").getCollection("test_collection").count();
         int approxDbSize = Math.toIntExact(dbSize);
@@ -225,7 +322,7 @@ public class Trades {
 
     @Path("/returns/{owner}")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     @APIResponses(value = {
         @APIResponse(
             responseCode = "404",
