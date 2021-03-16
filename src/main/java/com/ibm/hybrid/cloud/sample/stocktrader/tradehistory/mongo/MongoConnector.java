@@ -38,7 +38,6 @@ import java.net.MalformedURLException;
 
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.StockQuoteClient;
-import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.demo.DemoConsumedMessage;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
