@@ -14,7 +14,7 @@ package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory;
 
 import javax.inject.Inject;
 
-import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka.Consumer;
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka.MPReactiveConsumer;
 
 import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -25,7 +25,7 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 public class HealthEndpoint implements HealthCheck {
 
     @Inject
-    private Consumer kafka;
+    private MPReactiveConsumer kafka;
 
     @Override
     public HealthCheckResponse call() {
