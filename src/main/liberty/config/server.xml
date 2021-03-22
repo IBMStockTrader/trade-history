@@ -17,7 +17,6 @@
       <feature>mpReactiveMessaging-1.0</feature>
       <feature>monitor-1.0</feature>
       <feature>jndi-1.0</feature>
-      <feature>websocket-1.1</feature>
   </featureManager>
 
   <logging consoleLogLevel="INFO" traceSpecification="*=info"/>
