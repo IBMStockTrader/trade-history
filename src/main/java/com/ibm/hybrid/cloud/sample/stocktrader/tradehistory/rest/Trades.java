@@ -12,33 +12,31 @@
  */
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.annotation.PostConstruct;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 
 import org.bson.Document;
+import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.info.Contact;
+import org.eclipse.microprofile.openapi.annotations.info.Info;
+import org.eclipse.microprofile.openapi.annotations.info.License;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
-import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
-import org.eclipse.microprofile.openapi.annotations.info.Info;
-import org.eclipse.microprofile.openapi.annotations.media.Content;
-import org.eclipse.microprofile.openapi.annotations.info.License;
-import org.eclipse.microprofile.openapi.annotations.info.Contact;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
-
 import org.json.JSONObject;
-
-import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
 
 import io.swagger.annotations.Api;
 
@@ -61,7 +59,7 @@ public class Trades {
     @PostConstruct
     public void initialize(){
         try {
-            MongoConnector mConnector = new MongoConnector();
+            mConnector = new MongoConnector();
         }
         catch( NullPointerException e) {
             System.out.println(e.getMessage());
@@ -95,7 +93,7 @@ public class Trades {
     )
     public String latestBuy() {
         JSONObject json = new JSONObject();
-        MongoClient mClient = mConnector.mongoClient;
+        MongoClient mClient = MongoConnector.mongoClient;
         
         long dbSize = mClient.getDatabase("test").getCollection("test_collection").count();
         int approxDbSize = Math.toIntExact(dbSize);

@@ -14,9 +14,9 @@
 <server description="Trade History server">
   <featureManager>
       <feature>microprofile-3.3</feature>
+      <feature>mpReactiveMessaging-1.0</feature>
       <feature>monitor-1.0</feature>
       <feature>jndi-1.0</feature>
-      <feature>websocket-1.1</feature>
   </featureManager>
 
   <logging consoleLogLevel="INFO" traceSpecification="*=info"/>
@@ -30,6 +30,14 @@
       <classloader apiTypeVisibility="+third-party"/>
   </webApplication>
   
+  <keyStore id="defaultKeyStore" password="St0ckTr@der" type="pkcs12"
+        location="${server.config.dir}/resources/security/key.p12" />
+
+  <keyStore id="defaultTrustStore" password="St0ckTr@der" type="pkcs12"
+        location="${server.config.dir}/resources/security/trust.p12" />
+
+  <ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" trustStoreRef="defaultTrustStore" trustDefaultCerts="true" />
+
   <mpJwt id="myMpJwt" audiences="${env.JWT_AUDIENCE}" issuer="${env.JWT_ISSUER}" keyName="default" ignoreApplicationAuthMethod="false"/>
 
   <mpMetrics authentication="false"/>
