@@ -1,5 +1,5 @@
 /*
-       Copyright 2018, 2019 IBM Corp All Rights Reserved
+       Copyright 2018-2021 IBM Corp All Rights Reserved
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -67,8 +67,8 @@ public class Trades {
         catch(IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
-        catch(Exception e) {
-            System.out.println(e.getMessage());
+        catch(Throwable t) {
+            System.out.println(t.getMessage());
         }
     }
 
@@ -124,8 +124,11 @@ public class Trades {
         description = "Get an array of owner's transactions")
     public String getTradesByOwner(@Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
     
-        return mConnector.getTrades(ownerName).toString();
+        String trades = "Unknown";
 
+        if (mConnector!=null) trades = mConnector.getTrades(ownerName).toString();
+
+        return trades;
     }
 
     @Path("/trades/{owner}/{symbol}")
@@ -149,8 +152,11 @@ public class Trades {
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
         @Parameter(description="Symbol name", required = true) @PathParam("symbol") String symbol) {
 
-        return mConnector.getTradesForSymbol(ownerName, symbol).toString();
+        String roi = "Unknown";
 
+        if (mConnector!=null) roi = mConnector.getTradesForSymbol(ownerName, symbol).toString();
+
+        return roi;
     }
 
     @Path("/shares/{owner}/{symbol}")
@@ -173,8 +179,11 @@ public class Trades {
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
         @Parameter(description="Symbol name", required = false) @PathParam("symbol") String symbol) {
 
-        return mConnector.getSymbolShares(ownerName, symbol).toString();
+        String shares = "Unknown";
 
+        if (mConnector!=null) shares = mConnector.getSymbolShares(ownerName, symbol).toString();
+
+        return shares;
     }
 
     @Path("/shares/{owner}")
@@ -195,8 +204,11 @@ public class Trades {
     @Operation(summary = "Get the number of shares of all owned stock by specified owner.")
     public String getPortfolioShares(@Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
 
-        return mConnector.getPortfolioSharesJSON(ownerName).toString();
+        String shares = "Unknown";
 
+        if (mConnector!=null) shares = mConnector.getPortfolioSharesJSON(ownerName).toString();
+
+        return shares;
     }
 
     @Path("/notional/{owner}")
@@ -217,8 +229,11 @@ public class Trades {
     public String getNotional(
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
 
-        return mConnector.getTotalNotional(ownerName).toString();
-        
+        String notional = "Unknown";
+
+        if (mConnector!=null) notional = mConnector.getTotalNotional(ownerName).toString();
+
+        return notional;
     }
 
     @Path("/returns/{owner}")
@@ -241,7 +256,10 @@ public class Trades {
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
         @Parameter(description="Current portfolio value", required = true) @QueryParam("currentValue") Double portfolioValue) {
 
-        return mConnector.getROI(ownerName, portfolioValue).toString();
+        String roi = "Unknown";
 
+        if (mConnector!=null) roi = mConnector.getROI(ownerName, portfolioValue).toString();
+
+        return roi;
     }
 }
