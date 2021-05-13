@@ -13,13 +13,15 @@
 
 <server description="Trade History server">
   <featureManager>
-      <feature>microprofile-3.3</feature>
+      <feature>microprofile-3.3</feature> <!-- MP 4.0 is incompatible with mpReactiveMessaging-1.0 -->
       <feature>mpReactiveMessaging-1.0</feature>
       <feature>monitor-1.0</feature>
       <feature>jndi-1.0</feature>
   </featureManager>
 
-  <logging consoleLogLevel="INFO" traceSpecification="*=info"/>
+  <variable name="TRACE_SPEC" defaultValue="*=info"/>
+
+  <logging traceSpecification="${TRACE_SPEC}" consoleLogLevel="INFO" />
 
   <httpEndpoint httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint" host="*" />
 
