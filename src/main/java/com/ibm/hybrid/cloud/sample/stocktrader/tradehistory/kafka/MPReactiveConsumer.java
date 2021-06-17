@@ -1,48 +1,39 @@
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.StockPurchase;
 
+import org.eclipse.microprofile.reactive.messaging.Acknowledgment;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 
 @ApplicationScoped
 public class MPReactiveConsumer {
     
-    private static MongoConnector mConnector = null;
+    @Inject
+    private MongoConnector mConnector;
     private static String topic = null;
+
+    static {
+        topic = System.getenv("KAFKA_TOPIC");
+        if ((topic != null) && !topic.isEmpty()) {
+		} else {
+            System.out.println("Using default topic of 'stocktrader'");
+            topic = "stocktrader";
+		}
+    }
 
     MPReactiveConsumer() {}
 
-    public void init(){
-        try {
-            mConnector = new MongoConnector();
-            topic = System.getenv("MP_MESSAGING_INCOMING_STOCKTRADER_TOPIC");
-            if (topic == null || topic.isEmpty()) {
-                topic = "stocktrader";
-            }
-        }
-        catch( NullPointerException e) {
-            System.out.println(e.getMessage());
-        }
-        catch(IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
-        catch(Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
     @Incoming("stocktrader")
+    @Acknowledgment(Acknowledgment.Strategy.NONE)
     public void consume(String record) {
         StockPurchase sp = new StockPurchase(record);
         try {
-            if (mConnector == null) {
-                init();
-            }
             mConnector.insertStockPurchase(sp, topic);
+            System.out.println("Inserted stockpurchase " + record);
         } catch (Exception e) {
             e.printStackTrace();
         }
