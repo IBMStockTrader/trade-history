@@ -83,7 +83,7 @@ public class Trades {
         JSONObject json = new JSONObject();
         MongoClient mClient = MongoConnector.mongoClient;
         
-        long dbSize = mClient.getDatabase("test").getCollection("test_collection").count();
+        long dbSize = mClient.getDatabase("test").getCollection("test_collection").countDocuments();
         int approxDbSize = Math.toIntExact(dbSize);
 
         FindIterable<Document> docs = mClient.getDatabase("test").getCollection("test_collection").find().skip(approxDbSize - 1);
