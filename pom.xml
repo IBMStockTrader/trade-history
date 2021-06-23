@@ -151,8 +151,8 @@
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
-            <version>3.11.0</version>
+            <artifactId>mongodb-driver-legacy</artifactId>
+            <version>4.2.3</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
