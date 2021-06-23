@@ -28,6 +28,7 @@ public class MPReactiveConsumer {
     MPReactiveConsumer() {}
 
     @Incoming("stocktrader")
+    // Acknowledgement annotation for high-throughput as mentioned here: https://smallrye.io/smallrye-reactive-messaging/smallrye-reactive-messaging/2.4/kafka/kafka.html
     @Acknowledgment(Acknowledgment.Strategy.NONE)
     public void consume(String record) {
         StockPurchase sp = new StockPurchase(record);
