@@ -27,6 +27,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
@@ -73,12 +74,18 @@ public class MongoConnector {
             if(MONGO_IP == null || MONGO_PORT == 0 || MONGO_USER == null || MONGO_AUTH_DB == null || MONGO_PASSWORD == null || MONGO_DATABASE == null){
                 throw new NullPointerException("One or more mongo properties cannot be found or were not set.");
             }
-            ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
+
+            ArrayList<ServerAddress> seeds = new ArrayList<>();
+            for (String s : MONGO_IP.split(",")) {
+                seeds.add(new ServerAddress(s, MONGO_PORT));
+            }
+
+            //ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
             MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
             MongoClientOptions options = MongoClientOptions.builder().sslEnabled(true).build();
-            mongoClient = new MongoClient(sa, credential, options);
+            mongoClient = new MongoClient(seeds, credential, options);
             try {
-                mongoClient.getAddress();
+                System.out.println(mongoClient.getClusterDescription().getShortDescription());
             } catch (Exception e) {
                 mongoClient.close();
                 throw e;
