@@ -13,6 +13,8 @@
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -52,25 +54,11 @@ import io.swagger.annotations.Api;
         license = @License(name = "License", url = "https://github.com/IBMStockTrader/trade-history/blob/master/LICENSE")
         )
 )
+@RequestScoped
 public class Trades {
 
-    public static MongoConnector mConnector;
-
-    @PostConstruct
-    public void initialize(){
-        try {
-            mConnector = new MongoConnector();
-        }
-        catch( NullPointerException e) {
-            System.out.println(e.getMessage());
-        }
-        catch(IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
-        catch(Throwable t) {
-            System.out.println(t.getMessage());
-        }
-    }
+    @Inject
+    private MongoConnector mConnector;
 
     @Path("/latestBuy")
     @GET
