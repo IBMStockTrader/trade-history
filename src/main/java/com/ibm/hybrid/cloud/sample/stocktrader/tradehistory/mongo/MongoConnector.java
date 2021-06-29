@@ -76,8 +76,9 @@ public class MongoConnector {
             }
 
             ArrayList<ServerAddress> seeds = new ArrayList<>();
-            for (String s : MONGO_IP.split(",")) {
-                seeds.add(new ServerAddress(s, MONGO_PORT));
+            for (String ipString : MONGO_IP.split(",")) {
+                String[] hostAndPort = ipString.split(":");
+                seeds.add(new ServerAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
             }
 
             //ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
