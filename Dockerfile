@@ -12,6 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+FROM maven:3.6-jdk-11-slim AS build
+COPY . /usr/
+RUN mvn -f /usr/pom.xml clean package
+
 # FROM websphere-liberty:microProfile3
 FROM openliberty/open-liberty:kernel-slim-java11-openj9-ubi
 
@@ -23,7 +27,7 @@ COPY --chown=1001:0 src/main/liberty/config /config/
 # Only available in 'kernel-slim'. The 'full' tag already includes all features for convenience.
 RUN features.sh
 
-COPY --chown=1001:0 target/tradehistory-1.0-SNAPSHOT.war /config/apps/trade-history.war
+COPY --from=build --chown=1001:0 /usr/target/tradehistory-1.0-SNAPSHOT.war /config/apps/trade-history.war
 
 # COPY --chown=1001:0 /target/liberty/wlp/usr/servers/defaultServer /config/
 # COPY --chown=1001:0 /target/liberty/wlp/usr/servers/defaultServer/resources/security/certs.jks output/resources/security/
