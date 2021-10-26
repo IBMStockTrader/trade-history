@@ -22,32 +22,22 @@ import com.mongodb.client.MapReduceIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.model.Filters;
-import com.mongodb.MongoSocketException;
-
 import org.bson.Document;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Set;
-
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.net.MalformedURLException;
 
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.StockQuoteClient;
 
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
-
-import java.net.UnknownHostException;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import javax.servlet.http.HttpServletRequest;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
+@ApplicationScoped
 public class MongoConnector {
 
     private char[] MONGO_PASSWORD;
@@ -59,27 +49,44 @@ public class MongoConnector {
 
     public static MongoDatabase database;
     public static MongoClient mongoClient;
-    public MongoCollection<Document> tradesCollection;
+    private MongoCollection<Document> tradesCollection;
     public static final String TRADE_COLLECTION_NAME = "test_collection";
 
-    
     @Inject 
     @RestClient  
     private StockQuoteClient stockQuoteClient;
 
-    public MongoConnector() throws NullPointerException,IllegalArgumentException,MongoSocketException {
-        //Mongo DB Connection
+    // Override Stock Quote Client URL if secret is configured to provide URL
+	static {
+		String mpUrlPropName = StockQuoteClient.class.getName() + "/mp-rest/url";
+		String urlFromEnv = System.getenv("STOCK_QUOTE_URL");
+		if ((urlFromEnv != null) && !urlFromEnv.isEmpty()) {
+			System.out.println("Using Stock Quote URL from config map: " + urlFromEnv);
+			System.setProperty(mpUrlPropName, urlFromEnv);
+		} else {
+			System.out.println("Stock Quote URL not found from env var from config map, so defaulting to value in jvm.options: " + System.getProperty(mpUrlPropName));
+		}
+	}
+
+    public MongoConnector() {
         initializeProperties();
         try{
             if(MONGO_IP == null || MONGO_PORT == 0 || MONGO_USER == null || MONGO_AUTH_DB == null || MONGO_PASSWORD == null || MONGO_DATABASE == null){
                 throw new NullPointerException("One or more mongo properties cannot be found or were not set.");
             }
-            ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
+
+            ArrayList<ServerAddress> seeds = new ArrayList<>();
+            for (String ipString : MONGO_IP.split(",")) {
+                String[] hostAndPort = ipString.split(":");
+                seeds.add(new ServerAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
+            }
+
+            //ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
             MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
             MongoClientOptions options = MongoClientOptions.builder().sslEnabled(true).build();
-            mongoClient = new MongoClient(sa, credential, options);
+            mongoClient = new MongoClient(seeds, credential, options);
             try {
-                mongoClient.getAddress();
+                System.out.println(mongoClient.getClusterDescription().getShortDescription());
             } catch (Exception e) {
                 mongoClient.close();
                 throw e;
