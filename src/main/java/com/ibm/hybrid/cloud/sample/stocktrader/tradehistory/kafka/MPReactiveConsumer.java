@@ -17,7 +17,7 @@ public class MPReactiveConsumer {
     private static String topic = null;
 
     static {
-        topic = System.getenv("KAFKA_TOPIC");
+        topic = System.getenv("MP_MESSAGING_INCOMING_STOCKTRADER_TOPIC");
         if ((topic != null) && !topic.isEmpty()) {
 		} else {
             System.out.println("Using default topic of 'stocktrader'");
