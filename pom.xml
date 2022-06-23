@@ -24,7 +24,7 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-app-parent</artifactId>
-        <version>3.2.1</version>
+        <version>3.6</version>
     </parent>
 
     <repositories>
@@ -42,15 +42,16 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <app.name>tradehistory</app.name>
+        <maven.compiler.release>17</maven.compiler.release>
+        <app.name>trade-history</app.name>
+
         <testServerHttpPort>9080</testServerHttpPort>
         <testServerHttpsPort>9443</testServerHttpsPort>
         <testMongoDatabase>TEST_MONGO_DATABASE</testMongoDatabase>
         <testMongoCollection>TEST_MONGO_COLLECTION</testMongoCollection>
         <testMongoPort>27017</testMongoPort>
         <testMongoHost>127.0.0.1</testMongoHost>
+
         <warContext>${app.name}</warContext>
         <package.file>${project.build.directory}/${project.artifactId}-${project.version}.zip</package.file>
         <packaging.type>usr</packaging.type>
@@ -95,26 +96,27 @@
         <dependency>
             <groupId>javax.enterprise.concurrent</groupId>
             <artifactId>javax.enterprise.concurrent-api</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.0</version>
+            <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.websocket</groupId>
             <artifactId>javax.websocket-api</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>2.1.0</version>
+            <version>2.8.1</version>
         </dependency>
+       <!-- Can't move up to MicroProfile 4 or higher due to mpReactiveMessaging 1.0 -->
         <dependency>
             <groupId>org.eclipse.microprofile</groupId>
             <artifactId>microprofile</artifactId>
@@ -122,6 +124,7 @@
             <scope>provided</scope>
             <type>pom</type>
         </dependency>
+       <!-- Sadly, Liberty doesn't support mpReactiveMessaging 2.0 -->
         <dependency>
             <groupId>org.eclipse.microprofile.reactive.messaging</groupId>
             <artifactId>microprofile-reactive-messaging-api</artifactId>
@@ -130,39 +133,39 @@
         <dependency>
             <groupId>io.jaegertracing</groupId>
             <artifactId>jaeger-client</artifactId>
-            <version>0.34.0</version>
+            <version>1.8.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>1.7.25</version>
+            <version>1.7.36</version>
         </dependency>
          <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-client</artifactId>
-            <version>3.1.11</version>
+            <version>3.5.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-legacy</artifactId>
-            <version>4.2.3</version>
+            <version>4.6.1</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20190722</version>
+            <version>20220320</version>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>1.5.23</version>
+            <version>1.6.6</version>
         </dependency>
     </dependencies>
 
@@ -171,7 +174,7 @@
             <plugin>
                 <groupId>com.github.joelittlejohn.embedmongo</groupId>
                 <artifactId>embedmongo-maven-plugin</artifactId>
-                <version>0.4.1</version>
+                <version>0.4.2</version>
                 <configuration> 
                     <scriptsDirectory>...</scriptsDirectory>
                     <databaseName>${testMongoDatabase}</databaseName>
@@ -198,7 +201,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.3.2</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <packagingExcludes>pom.xml</packagingExcludes>
@@ -208,7 +211,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18.1</version>
+                <version>2.22.2</version>
                 <executions>
                     <execution>
                         <phase>test</phase>
@@ -226,7 +229,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>copy-javametrics-dash</id>
@@ -282,7 +285,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.18.1</version>
+                <version>2.22.2</version>
                 <executions>
                     <execution>
                         <phase>integration-test</phase>
@@ -334,7 +337,7 @@
                   <plugin>
                       <groupId>org.apache.maven.plugins</groupId>
                       <artifactId>maven-enforcer-plugin</artifactId>
-                      <version>1.4.1</version>
+                      <version>3.1.0</version>
                       <executions>
                           <execution>
                               <id>enforce-bluemix-credentials</id>
@@ -402,8 +405,9 @@
                 <pluginManagement>
                     <plugins>
                         <plugin>
-                            <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                            <groupId>io.openliberty.tools</groupId>
                             <artifactId>liberty-maven-plugin</artifactId>
+                            <version>3.6</version>
                             <configuration>
                                 <outputDirectory>/tmp/liberty</outputDirectory>
                             </configuration>
@@ -446,13 +450,14 @@
                 <plugins>
                     <!-- Default enablement of liberty-maven plugin -->
             <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
+                <version>3.6</version>
                 <configuration>
                     <assemblyArtifact>
                         <groupId>com.ibm.websphere.appserver.runtime</groupId>
                         <artifactId>wlp-webProfile8</artifactId>
-                        <version>[18.0.0.1,)</version>
+                        <version>22.0.0.6</version>
                         <type>zip</type>
                     </assemblyArtifact>
                     <configDirectory>${basedir}/src/main/liberty/config</configDirectory>
@@ -487,14 +492,15 @@
                 <directory>${microclimateOutputDir}</directory>
                 <plugins>
                     <!-- Enablement of liberty-maven plugin in microclimate -->
-                    <plugin>
-                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <plugin>
+                <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
+                <version>3.6</version>
                 <configuration>
                     <assemblyArtifact>
                         <groupId>com.ibm.websphere.appserver.runtime</groupId>
                         <artifactId>wlp-webProfile8</artifactId>
-                        <version>[18.0.0.1,)</version>
+                        <version>22.0.0.6</version>
                         <type>zip</type>
                     </assemblyArtifact>
                     <configDirectory>${basedir}/src/main/liberty/config</configDirectory>
