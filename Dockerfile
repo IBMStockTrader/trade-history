@@ -17,7 +17,7 @@
 # RUN mvn -f /usr/pom.xml clean package
 
 # FROM websphere-liberty:microProfile3
-FROM openliberty/open-liberty:22.0.0.9-full-java17-openj9-ubi
+FROM openliberty/open-liberty:22.0.0.12-full-java17-openj9-ubi
 
 USER root
 
