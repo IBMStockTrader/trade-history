@@ -1,5 +1,6 @@
 /*
        Copyright 2018, 2019 IBM Corp All Rights Reserved
+       Copyright 2024 Kyndryl All Rights Reserved
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -13,6 +14,7 @@
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.ServerAddress;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.client.MongoDatabase;
@@ -50,6 +52,7 @@ public class MongoConnector {
     private String MONGO_IP;
     private int MONGO_PORT;
     private String MONGO_DATABASE;
+    private String MONGO_CONNECTION_STRING;
 
     public static MongoDatabase database;
     public static MongoClient mongoClient;
@@ -78,26 +81,42 @@ public class MongoConnector {
         initializeProperties();
         try {
             if (MONGO_IP == null || MONGO_PORT == 0 || MONGO_USER == null || MONGO_AUTH_DB == null || MONGO_PASSWORD == null || MONGO_DATABASE == null) {
+                logger.warning("One or more mongo properties cannot be found or were not set.");
                 throw new NullPointerException("One or more mongo properties cannot be found or were not set.");
             }
 
-            ArrayList<ServerAddress> seeds = new ArrayList<>();
-            for (String ipString : MONGO_IP.split(",")) {
-                String[] hostAndPort = ipString.split(":");
-                seeds.add(new ServerAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
+            if ((MONGO_CONNECTION_STRING == null) || MONGO_CONNECTION_STRING.equals("<your Mongo connection string>")) {
+                logger.info("Using traditional constructor for MongoClient");
+
+                ArrayList<ServerAddress> seeds = new ArrayList<>();
+                if (MONGO_IP.contains(":") { //host and port (potentially a list thereof) are in a single env var, so parse them apart
+                    for (String ipString : MONGO_IP.split(",")) {
+                        String[] hostAndPort = ipString.split(":");
+                        seeds.add(new ServerAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
+                    }
+                } else { //host and port are in separate env vars
+                    seeds.add(MONGO_IP, MONGO_PORT);
+                }
+
+                MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
+                MongoClientOptions options = MongoClientOptions.builder().sslEnabled(true).build();
+                mongoClient = new MongoClient(seeds, credential, options);
+            } else {
+                logger.info("Using MongoClientURI constructor for MongoClient");
+
+                MongoClientURI uri = new MongoClientURI(MONGO_CONNECTION_STRING);
+                mongoClient = new MongoClient(uri);
             }
 
-            //ServerAddress sa = new ServerAddress(MONGO_IP,MONGO_PORT);
-            MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
-            MongoClientOptions options = MongoClientOptions.builder().sslEnabled(true).build();
-            mongoClient = new MongoClient(seeds, credential, options);
             try {
                 System.out.println(mongoClient.getClusterDescription().getShortDescription());
             } catch (Exception e) {
+                logger.warning("Exception initializing MongoClient: "+e.getMessage());
                 mongoClient.close();
                 throw e;
             }
             database = mongoClient.getDatabase(MONGO_DATABASE);
+            logger.info("Successfully initialized MongoClient");
         } catch (NullPointerException e) {
             throw e;
         }
@@ -111,12 +130,14 @@ public class MongoConnector {
     }
 
     private void initializeProperties() {
+        //Probably should use mpConfig here instead of raw System.getenv....
         MONGO_PASSWORD = System.getenv("MONGO_PASSWORD").toCharArray();
         MONGO_AUTH_DB = System.getenv("MONGO_AUTH_DB");
         MONGO_USER = System.getenv("MONGO_USER");
         MONGO_IP = System.getenv("MONGO_IP");
         MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
         MONGO_DATABASE = System.getenv("MONGO_DATABASE");
+        MONGO_CONNECTION_STRING = System.getenv("MONGO_CONNECTION_STRING");
     }
 
     public MongoConnector(MongoClient mClient, String mongoDatabase, String mongoCollection) {
