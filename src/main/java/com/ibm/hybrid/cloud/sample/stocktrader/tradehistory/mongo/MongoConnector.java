@@ -89,13 +89,13 @@ public class MongoConnector {
                 logger.info("Using traditional constructor for MongoClient");
 
                 ArrayList<ServerAddress> seeds = new ArrayList<>();
-                if (MONGO_IP.contains(":") { //host and port (potentially a list thereof) are in a single env var, so parse them apart
+                if (MONGO_IP.contains(":")) { //host and port (potentially a list thereof) are in a single env var, so parse them apart
                     for (String ipString : MONGO_IP.split(",")) {
                         String[] hostAndPort = ipString.split(":");
                         seeds.add(new ServerAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
                     }
                 } else { //host and port are in separate env vars
-                    seeds.add(MONGO_IP, MONGO_PORT);
+                    seeds.add(new ServerAddress(MONGO_IP, MONGO_PORT));
                 }
 
                 MongoCredential credential = MongoCredential.createCredential(MONGO_USER, MONGO_AUTH_DB, MONGO_PASSWORD);
