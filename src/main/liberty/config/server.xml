@@ -1,5 +1,6 @@
 <!--
        Copyright 2017-2021 IBM Corp All Rights Reserved
+       Copyright 2022-2024 Kyndryl, All Rights Reserved
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -14,8 +15,8 @@
 <server description="Trade History server">
   <featureManager>
       <feature>microprofile-3.3</feature> <!-- MP 4.0 is incompatible with mpReactiveMessaging-1.0 -->
-      <feature>mpReactiveMessaging-1.0</feature>
-      <feature>monitor-1.0</feature>
+      <feature>mpReactiveMessaging-1.0</feature> <!-- Rumor is that mpReactiveMessaging-3.0 is coming in 24.0.0.1 -->
+      <feature>monitor-1.0</feature> <!-- We can remove monitor-1.0 once we move up to newer MicroProfile, per above -->
       <feature>jndi-1.0</feature>
   </featureManager>
 
