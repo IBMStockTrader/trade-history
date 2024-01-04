@@ -40,7 +40,11 @@
 
   <ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" trustStoreRef="defaultTrustStore" trustDefaultCerts="true" />
 
-  <mpJwt id="myMpJwt" audiences="${env.JWT_AUDIENCE}" issuer="${env.JWT_ISSUER}" keyName="default" ignoreApplicationAuthMethod="false"/>
+  <variable name="AUTH_TYPE" defaultValue="basic"/>
+  <variable name="JWT_AUDIENCE" defaultValue="stock-trader"/>
+  <variable name="JWT_ISSUER" defaultValue="http://stock-trader.ibm.com"/>
+
+  <include optional="false" location="${server.config.dir}/includes/${AUTH_TYPE}.xml"/>
 
   <mpMetrics authentication="false"/>
 </server>
