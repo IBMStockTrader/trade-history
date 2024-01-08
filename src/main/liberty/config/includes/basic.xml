@@ -1,5 +1,6 @@
 <!--
-       Copyright 2024 Kyndryl Corp, All Rights Reserved
+       Copyright 2017-2020 IBM Corp All Rights Reserved
+       Copyright 2022-2024 Kyndryl Corp, All Rights Reserved
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -36,10 +37,8 @@
 -->
 
     <jwtBuilder id="defaultJWT" keyStoreRef="defaultTrustStore" keyAlias="jwtSigner" issuer="${JWT_ISSUER}" audiences="${JWT_AUDIENCE}" />
-
-<!-- When global.auth=none in the CR yaml (meaning the AUTH_TYPE env var to this container is set to "none"), the server
-     is NOT instructed to check for a JWT in the request header.  This can simplify setup and early dev/test (such as for
-     a new client UI), but is not intended to be used in a production deployment.  The only difference between "none" and
-     "basic" is whether the following mpJwt line is commented out or not. -->
     <mpJwt id="stockTraderJWT" audiences="${JWT_AUDIENCE}" issuer="${JWT_ISSUER}" keyName="jwtSigner" ignoreApplicationAuthMethod="false" expiry="12h" sslRef="defaultSSLConfig"/>
+
+    <webAppSecurity displayAuthenticationRealm="true" logoutOnHttpSessionExpire="true" preserveFullyQualifiedReferrerUrl="true"
+        trackLoggedOutSSOCookies="true" ssoCookieName="StockTraderSSO" useOnlyCustomCookieName="true" ssoUseDomainFromURL="true"/>
 </server>
