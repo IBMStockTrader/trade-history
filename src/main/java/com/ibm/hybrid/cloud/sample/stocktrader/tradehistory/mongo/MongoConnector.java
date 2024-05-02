@@ -39,9 +39,9 @@ import java.util.logging.Logger;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.StockQuoteClient;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class MongoConnector {

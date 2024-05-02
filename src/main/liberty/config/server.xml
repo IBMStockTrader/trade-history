@@ -14,9 +14,8 @@
 
 <server description="Trade History server">
   <featureManager>
-      <feature>microprofile-3.3</feature> <!-- MP 4.0 is incompatible with mpReactiveMessaging-1.0 -->
-      <feature>mpReactiveMessaging-1.0</feature> <!-- Rumor is that mpReactiveMessaging-3.0 is coming in 24.0.0.1 -->
-      <feature>monitor-1.0</feature> <!-- We can remove monitor-1.0 once we move up to newer MicroProfile, per above -->
+      <feature>microprofile-6.1</feature>
+      <feature>mpReactiveMessaging-3.0</feature>
       <feature>jndi-1.0</feature>
   </featureManager>
 

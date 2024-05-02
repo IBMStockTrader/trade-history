@@ -1,5 +1,7 @@
 /*
-       Copyright 2018, 2019 IBM Corp All Rights Reserved
+   Copyright 2019-2021 IBM Corp All Rights Reserved
+   Copyright 2022-2024 Kyndryl, All Rights Reserved
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -29,11 +31,11 @@ import com.mongodb.MongoSocketException;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.StockPurchase;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 import org.json.JSONObject;
 
@@ -44,9 +46,9 @@ import org.junit.BeforeClass;
 import org.junit.AfterClass;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import javax.servlet.http.HttpServletRequest;
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 
 public class MongoIT extends EndpointHelper {
 

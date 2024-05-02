@@ -1,5 +1,6 @@
 /*
-       Copyright 2018, 2019 IBM Corp All Rights Reserved
+       Copyright 2018-2021 IBM Corp All Rights Reserved
+       Copyright 2022-2024 Kyndryl, All Rights Reserved
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -13,7 +14,7 @@
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo;
 
 import java.io.Serializable;
-import javax.json.Json;
+import jakarta.json.Json;
 
 import org.json.JSONObject;
 

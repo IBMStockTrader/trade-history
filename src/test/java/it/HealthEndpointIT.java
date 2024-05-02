@@ -1,5 +1,7 @@
 /*
-       Copyright 2018, 2019 IBM Corp All Rights Reserved
+   Copyright 2019-2021 IBM Corp All Rights Reserved
+   Copyright 2022-2024 Kyndryl, All Rights Reserved
+
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -14,10 +16,10 @@ package it;
 
 import static org.junit.Assert.assertTrue;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.Test;
 

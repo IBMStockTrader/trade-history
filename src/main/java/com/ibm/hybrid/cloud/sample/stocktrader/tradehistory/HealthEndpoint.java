@@ -1,5 +1,6 @@
 /*
-       Copyright 2018, 2019 IBM Corp All Rights Reserved
+       Copyright 2018-2021 IBM Corp All Rights Reserved
+       Copyright 2022-2024 Kyndryl, All Rights Reserved
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -12,16 +13,16 @@
  */
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka.MPReactiveConsumer;
 
-import org.eclipse.microprofile.health.Health;
+import org.eclipse.microprofile.health.Readiness;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 
-@Health
+@Readiness
 public class HealthEndpoint implements HealthCheck {
 
     @Inject
