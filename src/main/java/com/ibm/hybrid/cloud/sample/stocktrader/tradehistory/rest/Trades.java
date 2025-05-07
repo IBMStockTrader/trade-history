@@ -13,7 +13,7 @@
  */
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest;
 
-import jakarta.annotation.PostConstruct;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -80,6 +80,7 @@ public class Trades {
         summary = "Shows the latest trade.",
         description = "Retrieve the latest record from the mongo database."
     )
+    @WithSpan
     public String latestBuy() {
         JSONObject json = new JSONObject();
         MongoClient mClient = MongoConnector.mongoClient;
@@ -111,6 +112,7 @@ public class Trades {
                 schema = @Schema(implementation = Quote.class)))})
     @Operation(summary = "Get trade history of specified owner",
         description = "Get an array of owner's transactions")
+    @WithSpan
     public String getTradesByOwner(@Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
     
         String trades = "Unknown";
@@ -137,6 +139,7 @@ public class Trades {
                         schema = @Schema(implementation = Quote.class)))})
     @Operation(summary = "Get trade histoiry of specified owner for the specified stock symbol",
         description = "Get an array of the owner's transactions for the specified stock symbol")
+    @WithSpan
     public String getROI(
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
         @Parameter(description="Symbol name", required = true) @PathParam("symbol") String symbol) {
@@ -164,6 +167,7 @@ public class Trades {
                         mediaType = "application/json",
                         schema = @Schema(implementation = Quote.class)))})
     @Operation(summary = "Get the number of shares owned by specified owner for a specified stock symbol.")
+    @WithSpan
     public String getCurrentShares(
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
         @Parameter(description="Symbol name", required = false) @PathParam("symbol") String symbol) {
@@ -191,6 +195,7 @@ public class Trades {
                         mediaType = "application/json",
                         schema = @Schema(implementation = Quote.class)))})
     @Operation(summary = "Get the number of shares of all owned stock by specified owner.")
+    @WithSpan
     public String getPortfolioShares(@Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
 
         String shares = "Unknown";
@@ -215,6 +220,7 @@ public class Trades {
             content = @Content(
                         mediaType = "application/json",
                         schema = @Schema(implementation = Quote.class)))})
+    @WithSpan
     public String getNotional(
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName) {
 
@@ -241,6 +247,7 @@ public class Trades {
                         mediaType = "application/json",
                         schema = @Schema(implementation = Quote.class)))})
     @Operation(summary = "Get the percentage return on portfolio for the specified owner, with passed in portfolio value.")
+    @WithSpan
     public String getReturns(
         @Parameter(description="Owner name", required = true) @PathParam("owner") String ownerName, 
         @Parameter(description="Current portfolio value", required = true) @QueryParam("currentValue") Double portfolioValue) {

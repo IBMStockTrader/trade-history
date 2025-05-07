@@ -14,6 +14,7 @@
 
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.kafka;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -44,6 +45,7 @@ public class MPReactiveConsumer {
     @Incoming("stocktrader")
     // Acknowledgement annotation for high-throughput as mentioned here: https://smallrye.io/smallrye-reactive-messaging/smallrye-reactive-messaging/2.4/kafka/kafka.html
     @Acknowledgment(Acknowledgment.Strategy.NONE)
+    @WithSpan
     public void consume(String record) {
         StockPurchase sp = new StockPurchase(record);
         try {
