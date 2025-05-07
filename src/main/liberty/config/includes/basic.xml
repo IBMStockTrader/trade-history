@@ -13,7 +13,9 @@
    limitations under the License.
 -->
 <server>
-<!-- Authentication is via JWT SSO
+<!-- Authentication is via JWT SSO -->
+    <!-- for some reason this basicRegistry must be enabled -->
+    <!-- see the none.xml for more info -->
     <basicRegistry id="basic" realm="BasicRegistry">
         <user name="admin" password="admin"/>
         <user name="stock" password="trader"/>
@@ -34,7 +36,7 @@
     <administrator-role>
     	<user>admin</user>
     </administrator-role>
--->
+
 
     <jwtBuilder id="defaultJWT" keyStoreRef="defaultTrustStore" keyAlias="jwtSigner" issuer="${JWT_ISSUER}" audiences="${JWT_AUDIENCE}" />
     <mpJwt id="stockTraderJWT" audiences="${JWT_AUDIENCE}" issuer="${JWT_ISSUER}" keyName="jwtSigner" ignoreApplicationAuthMethod="false" expiry="12h" sslRef="defaultSSLConfig"/>
