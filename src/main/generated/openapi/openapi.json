@@ -1,0 +1,274 @@
+{
+  "openapi" : "3.1.0",
+  "components" : {
+    "schemas" : {
+      "Quote" : {
+        "type" : "object",
+        "properties" : {
+          "symbol" : {
+            "type" : "string"
+          },
+          "price" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "date" : {
+            "type" : "string"
+          },
+          "time" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      }
+    }
+  },
+  "paths" : {
+    "/trade-history/latestBuy" : {
+      "get" : {
+        "summary" : "Shows the latest trade.",
+        "description" : "Retrieve the latest record from the mongo database.",
+        "responses" : {
+          "404" : {
+            "description" : "The Mongo database cannot be found. ",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "200" : {
+            "description" : "The latest trade has been retrieved successfully.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Quote"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade-history/notional/{owner}" : {
+      "get" : {
+        "parameters" : [ {
+          "description" : "Owner name",
+          "required" : true,
+          "name" : "owner",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "The Mongo database cannot be found. ",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "200" : {
+            "description" : "The notional for the requested owner and symbol have been retrieved successfully.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Quote"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade-history/returns/{owner}" : {
+      "get" : {
+        "summary" : "Get the percentage return on portfolio for the specified owner, with passed in portfolio value.",
+        "parameters" : [ {
+          "description" : "Owner name",
+          "required" : true,
+          "name" : "owner",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Current portfolio value",
+          "required" : true,
+          "name" : "currentValue",
+          "in" : "query",
+          "schema" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "The Mongo database cannot be found.",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "200" : {
+            "description" : "The ROI for the requested owner has been retrieved successfully.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Quote"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade-history/shares/{owner}" : {
+      "get" : {
+        "summary" : "Get the number of shares of all owned stock by specified owner.",
+        "parameters" : [ {
+          "description" : "Owner name",
+          "required" : true,
+          "name" : "owner",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "The Mongo database cannot be found.",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "200" : {
+            "description" : "The shares for the requested owner and symbol have been retrieved successfully.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Quote"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade-history/shares/{owner}/{symbol}" : {
+      "get" : {
+        "summary" : "Get the number of shares owned by specified owner for a specified stock symbol.",
+        "parameters" : [ {
+          "description" : "Owner name",
+          "required" : true,
+          "name" : "owner",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Symbol name",
+          "required" : true,
+          "name" : "symbol",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "The Mongo database cannot be found.",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "200" : {
+            "description" : "The ROI for the requested owner and symbol have been retrieved successfully.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Quote"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade-history/trades/{owner}" : {
+      "get" : {
+        "summary" : "Get trade history of specified owner",
+        "description" : "Get an array of owner's transactions",
+        "parameters" : [ {
+          "description" : "Owner name",
+          "required" : true,
+          "name" : "owner",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "The Mongo database cannot be found.",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "200" : {
+            "description" : "The trades for the requested owner have been retrieved successfully.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Quote"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade-history/trades/{owner}/{symbol}" : {
+      "get" : {
+        "summary" : "Get trade histoiry of specified owner for the specified stock symbol",
+        "description" : "Get an array of the owner's transactions for the specified stock symbol",
+        "parameters" : [ {
+          "description" : "Owner name",
+          "required" : true,
+          "name" : "owner",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Symbol name",
+          "required" : true,
+          "name" : "symbol",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "The Mongo database cannot be found.",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "200" : {
+            "description" : "The ROI for the requested owner and symbol have been retrieved successfully.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Quote"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "info" : {
+    "title" : "Generated API",
+    "version" : "1.0"
+  }
+}
