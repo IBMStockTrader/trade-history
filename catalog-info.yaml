@@ -32,7 +32,7 @@ spec:
   providesApis:
     - trade-history-api
   dependsOn:
-    - component:default/stock-quote-client-config
+    - component:default/stock-quote
 metadata:
   name: trade-history
   labels:
