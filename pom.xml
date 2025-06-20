@@ -88,9 +88,17 @@
             <type>pom</type>
         </dependency>
         <dependency>
+            <!-- this ships as part of MP 6.1 on OpenLiberty -->
+            <groupId>org.eclipse.microprofile.telemetry</groupId>
+            <artifactId>microprofile-telemetry-api</artifactId>
+            <type>pom</type>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.microprofile.reactive.messaging</groupId>
             <artifactId>microprofile-reactive-messaging-api</artifactId>
-            <version>3.0</version>
+            <version>3.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -142,7 +150,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-legacy</artifactId>
-            <version>5.1.0</version>
+            <version>5.4.0</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>

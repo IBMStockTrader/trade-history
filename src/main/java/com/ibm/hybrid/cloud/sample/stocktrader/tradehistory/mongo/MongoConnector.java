@@ -39,7 +39,6 @@ import java.util.logging.Logger;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.StockQuoteClient;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -249,10 +248,9 @@ public class MongoConnector {
      * @param ownerName
      * @return JSONObject containing array of equities
      */
-    public JSONObject getPortfolioEquity(String ownerName, HttpServletRequest request) {
+    public JSONObject getPortfolioEquity(String ownerName) {
         // getPortfolioShares, iterate through and use StockQuote to get current price
-        // to calculate equity per Symbol 
-        String jwt = request.getHeader("Authorization");
+        // to calculate equity per Symbol
 
         JSONArray jsonArray = new JSONArray();
 
@@ -262,7 +260,7 @@ public class MongoConnector {
 
             String symbol = item.get("_id").toString();
             Double shares = Double.parseDouble(item.get("value").toString());
-            Double equity = getSymbolEquity(jwt, shares, symbol);
+            Double equity = getSymbolEquity(shares, symbol);
 
             JSONObject obj = new JSONObject();
             obj.put("symbol", symbol);
@@ -274,10 +272,10 @@ public class MongoConnector {
         return result;
     }
 
-    private Double getSymbolPrice(String jwt, String symbol) {
+    private Double getSymbolPrice(String symbol) {
         Quote quote = new Quote();
         try {
-            quote = stockQuoteClient.getStockQuote(jwt, symbol);
+            quote = stockQuoteClient.getStockQuote(symbol);
         } catch (Exception e) {
             System.out.println("Error in " + this.getClass().getName());
             System.out.println(e);
@@ -286,25 +284,25 @@ public class MongoConnector {
         return price;
     }
 
-    private Double getSymbolEquity(String jwt, Double shares, String symbol) {
-        Double price = getSymbolPrice(jwt, symbol);
+    private Double getSymbolEquity(Double shares, String symbol) {
+        Double price = getSymbolPrice(symbol);
         Double equity = price * shares;
         return equity;
     }
 
-    public Double getSymbolEquity(String jwt, String owner, String symbol) {
+    public Double getSymbolEquity(String owner, String symbol) {
         Document doc = getSharesCount(owner, symbol).first(); //getSymbolShares(owner, symbol).get("shares");
         Double shares = doc.getDouble("value");
-        return getSymbolEquity(jwt, shares, symbol);
+        return getSymbolEquity(shares, symbol);
     }
 
     /**
      * @param ownerName
      * @return total value of equity (no symbol breakdown)
      */
-    public JSONObject getTotalEquity(String ownerName, HttpServletRequest request) {
+    public JSONObject getTotalEquity(String ownerName) {
         //TODO: getPortfolioEquity and reduce value
-        JSONArray portfolioEquity = getPortfolioEquity(ownerName, request).getJSONArray("portfolio");
+        JSONArray portfolioEquity = getPortfolioEquity(ownerName).getJSONArray("portfolio");
         for (Object obj : portfolioEquity) {
 
         }
