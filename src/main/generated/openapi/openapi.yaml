@@ -2,19 +2,54 @@
 openapi: 3.1.0
 components:
   schemas:
-    Quote:
+    Share:
       type: object
       properties:
         symbol:
           type: string
+        shares:
+          type: integer
+          format: int32
+    Shares:
+      type: object
+      properties:
+        shares:
+          type: array
+          items:
+            $ref: "#/components/schemas/Share"
+    Transaction:
+      type: object
+      properties:
+        owner:
+          type: string
+        shares:
+          type: integer
+          format: int32
+        symbol:
+          type: string
+        notional:
+          type: number
+          format: float
         price:
           type: number
-          format: double
-        date:
+          format: float
+        commission:
+          type: number
+          format: float
+        _id:
           type: string
-        time:
-          type: integer
-          format: int64
+        when:
+          type: string
+          format: date-time
+          examples:
+          - 2022-03-10T16:15:50Z
+    Transactions:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
 paths:
   /trade-history/latestBuy:
     get:
@@ -30,7 +65,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                $ref: "#/components/schemas/Transaction"
   /trade-history/notional/{owner}:
     get:
       parameters:
@@ -51,7 +86,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: number
+                format: double
   /trade-history/returns/{owner}:
     get:
       summary: "Get the percentage return on portfolio for the specified owner, with\
@@ -80,7 +116,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: number
+                format: double
   /trade-history/shares/{owner}:
     get:
       summary: Get the number of shares of all owned stock by specified owner.
@@ -102,7 +139,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                $ref: "#/components/schemas/Shares"
   /trade-history/shares/{owner}/{symbol}:
     get:
       summary: Get the number of shares owned by specified owner for a specified stock
@@ -131,7 +168,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                $ref: "#/components/schemas/Share"
   /trade-history/trades/{owner}:
     get:
       summary: Get trade history of specified owner
@@ -153,10 +190,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                $ref: "#/components/schemas/Transactions"
   /trade-history/trades/{owner}/{symbol}:
     get:
-      summary: Get trade histoiry of specified owner for the specified stock symbol
+      summary: Get trade history of specified owner for the specified stock symbol
       description: Get an array of the owner's transactions for the specified stock
         symbol
       parameters:
@@ -178,12 +215,12 @@ paths:
           content:
             text/plain: {}
         "200":
-          description: The ROI for the requested owner and symbol have been retrieved
+          description: The trades for the requested owner and symbol have been retrieved
             successfully.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                $ref: "#/components/schemas/Transactions"
 info:
   title: Generated API
   version: "1.0"
