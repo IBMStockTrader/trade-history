@@ -2,7 +2,7 @@
 
 <!--
        Copyright 2017-2021 IBM Corp All Rights Reserved
-       Copyright 2012-2024 Kyndryl, All Rights Reserved
+       Copyright 2012-2025 Kyndryl, All Rights Reserved
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -14,7 +14,8 @@
    limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>projects</groupId>
@@ -25,25 +26,27 @@
     <parent>
         <groupId>io.openliberty.tools</groupId>
         <artifactId>liberty-maven-app-parent</artifactId>
-        <version>3.10.2</version>
+        <version>3.11.5</version>
     </parent>
 
     <repositories>
-      <repository>
-        <id>oss.sonatype.org-snapshot</id>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        <releases>
-          <enabled>false</enabled>
-        </releases>
-        <snapshots>
-          <enabled>true</enabled>
-        </snapshots>
-      </repository>
+        <repository>
+            <id>oss.sonatype.org-snapshot</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>  <!-- or 21 -->
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <app.name>trade-history</app.name>
 
         <testServerHttpPort>9080</testServerHttpPort>
@@ -56,28 +59,32 @@
         <warContext>${app.name}</warContext>
         <package.file>${project.build.directory}/${project.artifactId}-${project.version}.zip</package.file>
         <packaging.type>usr</packaging.type>
-        <!-- Cloud Foundry/IBM Cloud properties -->
-        <cf.context>mybluemix.net</cf.context>
-        <cf.target>https://api.ng.bluemix.net</cf.target>
-        <cf.space>dev</cf.space>
-        <cf.context.root>${cf.host}.${cf.context}/${warContext}</cf.context.root>
-    
+
+        <resteasy.version>6.2.5.Final</resteasy.version>
+
         <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
         <powermock.version>2.0.9</powermock.version>
-        <!-- The Cloud Foundry or IBM Cloud organization, username and password can be
-            entered here. -->
-        <!-- <cf.org></cf.org> -->
-        <!-- <cf.username></cf.username> -->
-        <!-- <cf.password></cf.password> -->
-        <!-- This is the host for your app in IBM Cloud and what it will be called in the dashboard. -->
-        <cf.host>${app.name}</cf.host>
+
+        <lombok.version>1.18.38</lombok.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.smallrye.reactive</groupId>
+                <artifactId>smallrye-reactive-messaging-bom</artifactId>
+                <version>4.28.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-web-api</artifactId>
-            <version>10.0.0</version>
+            <version>11.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -88,7 +95,7 @@
             <type>pom</type>
         </dependency>
         <dependency>
-            <!-- this ships as part of MP 6.1 on OpenLiberty -->
+            <!-- this ships as part of MP 7.1 on OpenLiberty -->
             <groupId>org.eclipse.microprofile.telemetry</groupId>
             <artifactId>microprofile-telemetry-api</artifactId>
             <type>pom</type>
@@ -99,11 +106,19 @@
             <groupId>org.eclipse.microprofile.reactive.messaging</groupId>
             <artifactId>microprofile-reactive-messaging-api</artifactId>
             <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.microprofile.reactive-streams-operators</groupId>
+            <artifactId>microprofile-reactive-streams-operators-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>3.9.1</version>
+<!--            <version>3.9.1</version>-->
+            <version>4.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.ibm.runtimetools</groupId>
@@ -126,6 +141,12 @@
             <type>war</type>
         </dependency>
         <dependency>
+            <groupId>jakarta.json.bind</groupId>
+            <artifactId>jakarta.json.bind-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>io.jaegertracing</groupId>
             <artifactId>jaeger-client</artifactId>
             <version>1.8.1</version>
@@ -136,16 +157,10 @@
             <version>2.0.13</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-client</artifactId>
-            <version>4.0.4</version>
-            <scope>test</scope>
+            <groupId>org.eclipse.microprofile.rest.client</groupId>
+            <artifactId>microprofile-rest-client-api</artifactId>
+            <version>4.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -155,44 +170,121 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20240303</version>
+            <version>20250517</version>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>1.6.14</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.5.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
+            <version>4.0.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.21.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mongodb</artifactId>
+            <version>1.21.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
+            <version>1.21.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-junit5</artifactId>
+            <version>5.0.1.Final</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- MP Config implementation (for reading microprofile-config.properties) -->
+        <dependency>
+            <groupId>io.smallrye.config</groupId>
+            <artifactId>smallrye-config</artifactId>
+            <version>3.13.4</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JAX-RS client + JSON-B providers (used by SmallRye Rest Client) -->
+        <dependency>
+            <groupId>org.jboss.resteasy.microprofile</groupId>
+            <artifactId>microprofile-rest-client</artifactId>
+            <version>3.0.1.Final</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- CDI 4.0 API: provides ELAwareBeanManager -->
+        <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <version>4.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- EL API (some CDI/REST bits touch EL types) -->
+        <dependency>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+            <version>6.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+            <version>${resteasy.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-json-binding-provider</artifactId>
+            <version>${resteasy.version}</version>
+            <scope>test</scope>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.eclipse</groupId>-->
+<!--            <artifactId>yasson</artifactId>-->
+<!--            <version>3.0.4</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-jsonb</artifactId>
+            <version>2.0.2</version> <!-- match your Jakarta EE level -->
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.27.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>com.github.joelittlejohn.embedmongo</groupId>
-                <artifactId>embedmongo-maven-plugin</artifactId>
-                <version>0.4.2</version>
-                <configuration> 
-                    <scriptsDirectory>...</scriptsDirectory>
-                    <databaseName>${testMongoDatabase}</databaseName>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>start</id>
-                        <phase>
-                            pre-integration-test
-                        </phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>stop</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -207,6 +299,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>test</phase>
@@ -233,10 +328,11 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                          <stripVersion>true</stripVersion>
-                          <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/dropins</outputDirectory>
-                          <includeArtifactIds>javametrics-dash</includeArtifactIds>
-                      </configuration>
+                            <stripVersion>true</stripVersion>
+                            <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/dropins
+                            </outputDirectory>
+                            <includeArtifactIds>javametrics-dash</includeArtifactIds>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>copy-javametrics-rest</id>
@@ -245,10 +341,11 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                          <stripVersion>true</stripVersion>
-                          <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/dropins</outputDirectory>
-                          <includeArtifactIds>javametrics-rest</includeArtifactIds>
-                      </configuration>
+                            <stripVersion>true</stripVersion>
+                            <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/dropins
+                            </outputDirectory>
+                            <includeArtifactIds>javametrics-rest</includeArtifactIds>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>copy-javametrics-agent</id>
@@ -257,10 +354,12 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                          <stripVersion>true</stripVersion>
-                          <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/resources/</outputDirectory>
-                          <includeArtifactIds>javametrics-agent</includeArtifactIds>
-                      </configuration>
+                            <stripVersion>true</stripVersion>
+                            <outputDirectory>
+                                ${project.build.directory}/liberty/wlp/usr/servers/defaultServer/resources/
+                            </outputDirectory>
+                            <includeArtifactIds>javametrics-agent</includeArtifactIds>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>copy-javametrics-asm</id>
@@ -269,10 +368,12 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                          <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer/resources/asm</outputDirectory>
-                          <includeGroupIds>org.ow2.asm</includeGroupIds>
-                          <includeArtifactIds>asm,asm-commons</includeArtifactIds>
-                      </configuration>
+                            <outputDirectory>
+                                ${project.build.directory}/liberty/wlp/usr/servers/defaultServer/resources/asm
+                            </outputDirectory>
+                            <includeGroupIds>org.ow2.asm</includeGroupIds>
+                            <includeArtifactIds>asm,asm-commons</includeArtifactIds>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -329,6 +430,14 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+                <version>1.23</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -341,119 +450,10 @@
             </properties>
         </profile>
         <profile>
-          <id>bluemix</id>
-          <build>
-              <plugins>
-                  <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
-                      <artifactId>maven-enforcer-plugin</artifactId>
-                      <version>3.4.1</version>
-                      <executions>
-                          <execution>
-                              <id>enforce-bluemix-credentials</id>
-                              <phase>initialize</phase>
-                              <goals>
-                                  <goal>enforce</goal>
-                              </goals>
-                              <configuration>
-                                  <rules>
-                                      <requireProperty>
-                                          <property>cf.org</property>
-                                          <message>The cf.org property must be
-                                              provided with the bluemix
-                                              profile.</message>
-                                      </requireProperty>
-                                      <requireProperty>
-                                          <property>cf.username</property>
-                                          <message>The cf.username property
-                                              must be provided with the
-                                              bluemix profile.</message>
-                                      </requireProperty>
-                                      <requireProperty>
-                                          <property>cf.password</property>
-                                          <message>The cf.password property
-                                              must be provided with the
-                                              bluemix profile.</message>
-                                      </requireProperty>
-                                  </rules>
-                              </configuration>
-                          </execution>
-                      </executions>
-                  </plugin>
-                  <plugin>
-                      <groupId>org.cloudfoundry</groupId>
-                      <artifactId>cf-maven-plugin</artifactId>
-                      <version>1.1.3</version>
-                      <configuration>
-                          <target>${cf.target}</target>
-                          <org>${cf.org}</org>
-                          <space>${cf.space}</space>
-                          <username>${cf.username}</username>
-                          <password>${cf.password}</password>
-                          <appname>${cf.host}</appname>
-                          <memory>512</memory>
-                      </configuration>
-                      <executions>
-                          <execution>
-                              <id>push</id>
-                              <phase>package</phase>
-                              <goals>
-                                  <goal>push</goal>
-                              </goals>
-                              <configuration>
-                                  <path>${package.file}</path>
-                              </configuration>
-                          </execution>
-                      </executions>
-                  </plugin>
-              </plugins>
-          </build>
-      </profile>
-        <profile>
-            <id>bx-dev-build</id>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>io.openliberty.tools</groupId>
-                            <artifactId>liberty-maven-plugin</artifactId>
-                            <version>3.10.2</version>
-                            <configuration>
-                                <outputDirectory>/tmp/liberty</outputDirectory>
-                            </configuration>
-                            <executions>
-                                <execution>
-                                    <id>install-feature</id>
-                                    <phase>prepare-package</phase>
-                                    <goals>
-                                        <goal>install-feature</goal>
-                                    </goals>
-                                    <configuration>
-                                        <outputDirectory>/tmp/liberty</outputDirectory>
-                                    </configuration>
-                                </execution>
-                                <execution>
-                                    <id>package-server</id>
-                                    <phase>package</phase>
-                                    <goals>
-                                        <goal>package-server</goal>
-                                    </goals>
-                                    <configuration>
-                                        <outputDirectory>/tmp/liberty</outputDirectory>
-                                    </configuration>
-                                </execution>
-                            </executions>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-             </build>
-        </profile>
-        <profile>
             <id>liberty</id>
             <activation>
                 <property>
                     <name>libertyEnv</name>
-                    <value>!microclimate</value>
                 </property>
             </activation>
             <build>
@@ -462,12 +462,12 @@
                     <plugin>
                         <groupId>io.openliberty.tools</groupId>
                         <artifactId>liberty-maven-plugin</artifactId>
-                        <version>3.10.2</version>
+                        <version>3.11.5</version>
                         <configuration>
                             <assemblyArtifact>
                                 <groupId>com.ibm.websphere.appserver.runtime</groupId>
-                                <artifactId>wlp-webProfile10</artifactId>
-                                <version>24.0.0.3</version>
+                                <artifactId>wlp-webProfile11</artifactId>
+                                <version>25.0.0.6</version>
                                 <type>zip</type>
                             </assemblyArtifact>
                             <configDirectory>${basedir}/src/main/liberty/config</configDirectory>
@@ -479,45 +479,6 @@
                                 <test.mongo.database>${testMongoDatabase}</test.mongo.database>
                                 <test.mongo.collection>${testMongoCollection}</test.mongo.collection>
                                 <test.mongo.port>${testMongoPort}</test.mongo.port>
-                            </bootstrapProperties>
-                            <features>
-                                <acceptLicense>true</acceptLicense>
-                            </features>
-                            <looseApplication>false</looseApplication>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>microclimate</id>
-            <activation>
-                <property>
-                    <name>libertyEnv</name>
-                    <value>microclimate</value>
-                </property>
-            </activation>
-            <build>
-                <directory>${microclimateOutputDir}</directory>
-                <plugins>
-                    <!-- Enablement of liberty-maven plugin in microclimate -->
-                    <plugin>
-                        <groupId>io.openliberty.tools</groupId>
-                        <artifactId>liberty-maven-plugin</artifactId>
-                        <version>3.10.2</version>
-                        <configuration>
-                            <assemblyArtifact>
-                                <groupId>com.ibm.websphere.appserver.runtime</groupId>
-                                <artifactId>wlp-webProfile10</artifactId>
-                                <version>24.0.0.3</version>
-                                <type>zip</type>
-                            </assemblyArtifact>
-                            <configDirectory>${basedir}/src/main/liberty/config</configDirectory>
-                            <include>${packaging.type}</include>
-                            <bootstrapProperties>
-                                <app.location>${project.artifactId}-${project.version}.war</app.location>
-                                <default.http.port>${testServerHttpPort}</default.http.port>
-                                <default.https.port>${testServerHttpsPort}</default.https.port>
                             </bootstrapProperties>
                             <features>
                                 <acceptLicense>true</acceptLicense>

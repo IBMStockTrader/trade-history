@@ -1,6 +1,6 @@
 /*
        Copyright 2018, 2019 IBM Corp All Rights Reserved
-       Copyright 2024 Kyndryl All Rights Reserved
+       Copyright 2024-2025 Kyndryl All Rights Reserved
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -13,37 +13,57 @@
  */
 package com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.ServerAddress;
-import com.mongodb.MongoClientOptions;
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.StockQuoteClient;
+import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.rest.*;
+import com.mongodb.*;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MapReduceIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.MongoCredential;
-import com.mongodb.client.model.Accumulators;
-import com.mongodb.client.model.Aggregates;
-import com.mongodb.client.model.Filters;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.extern.java.Log;
 import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
-import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.Quote;
-import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.client.StockQuoteClient;
+import static com.mongodb.client.model.Accumulators.sum;
+import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Aggregates.match;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Sorts.descending;
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
+@Log
 @ApplicationScoped
 public class MongoConnector {
+
+    public static final String TRADE_COLLECTION_NAME = "test_collection";
+    public static MongoDatabase database;
+    public static MongoClient mongoClient;
+
+    // Override Stock Quote Client URL if secret is configured to provide URL
+    static {
+        String mpUrlPropName = StockQuoteClient.class.getName() + "/mp-rest/url";
+        String urlFromEnv = System.getenv("STOCK_QUOTE_URL");
+        if ((urlFromEnv != null) && !urlFromEnv.isEmpty()) {
+            log.info("Using Stock Quote URL from config map: " + urlFromEnv);
+            System.setProperty(mpUrlPropName, urlFromEnv);
+        } else {
+            log.info("Stock Quote URL not found from env var from config map, so defaulting to value in jvm.options: " + System.getProperty(mpUrlPropName));
+        }
+    }
 
     private char[] MONGO_PASSWORD;
     private String MONGO_AUTH_DB;
@@ -52,40 +72,21 @@ public class MongoConnector {
     private int MONGO_PORT;
     private String MONGO_DATABASE;
     private String MONGO_CONNECTION_STRING;
-
-    public static MongoDatabase database;
-    public static MongoClient mongoClient;
     private MongoCollection<Document> tradesCollection;
-    public static final String TRADE_COLLECTION_NAME = "test_collection";
-
-    private Logger logger = Logger.getLogger(MongoConnector.class.getName());
-
     @Inject
     @RestClient
     private StockQuoteClient stockQuoteClient;
 
-    // Override Stock Quote Client URL if secret is configured to provide URL
-    static {
-        String mpUrlPropName = StockQuoteClient.class.getName() + "/mp-rest/url";
-        String urlFromEnv = System.getenv("STOCK_QUOTE_URL");
-        if ((urlFromEnv != null) && !urlFromEnv.isEmpty()) {
-            System.out.println("Using Stock Quote URL from config map: " + urlFromEnv);
-            System.setProperty(mpUrlPropName, urlFromEnv);
-        } else {
-            System.out.println("Stock Quote URL not found from env var from config map, so defaulting to value in jvm.options: " + System.getProperty(mpUrlPropName));
-        }
-    }
-
     public MongoConnector() {
         initializeProperties();
         try {
-            if (MONGO_IP == null || MONGO_PORT == 0 || MONGO_USER == null || MONGO_AUTH_DB == null || MONGO_PASSWORD == null || MONGO_DATABASE == null) {
-                logger.warning("One or more mongo properties cannot be found or were not set.");
-                throw new NullPointerException("One or more mongo properties cannot be found or were not set.");
-            }
-
             if ((MONGO_CONNECTION_STRING == null) || MONGO_CONNECTION_STRING.equals("<your Mongo connection string>")) {
-                logger.info("Using traditional constructor for MongoClient");
+                log.info("Using traditional constructor for MongoClient");
+
+                if (MONGO_IP == null || MONGO_PORT == 0 || MONGO_USER == null || MONGO_AUTH_DB == null || MONGO_PASSWORD == null || MONGO_DATABASE == null) {
+                    log.warning("One or more mongo properties cannot be found or were not set.");
+                    throw new NullPointerException("One or more mongo properties cannot be found or were not set.");
+                }
 
                 ArrayList<ServerAddress> seeds = new ArrayList<>();
                 if (MONGO_IP.contains(":")) { //host and port (potentially a list thereof) are in a single env var, so parse them apart
@@ -101,21 +102,29 @@ public class MongoConnector {
                 MongoClientOptions options = MongoClientOptions.builder().sslEnabled(true).build();
                 mongoClient = new MongoClient(seeds, credential, options);
             } else {
-                logger.info("Using MongoClientURI constructor for MongoClient");
+                log.info("Using MongoClientURI constructor for MongoClient");
 
                 MongoClientURI uri = new MongoClientURI(MONGO_CONNECTION_STRING);
                 mongoClient = new MongoClient(uri);
             }
 
             try {
-                System.out.println(mongoClient.getClusterDescription().getShortDescription());
+                log.fine(mongoClient.getClusterDescription().getShortDescription());
             } catch (Exception e) {
-                logger.warning("Exception initializing MongoClient: "+e.getMessage());
+                log.warning("Exception initializing MongoClient: " + e.getMessage());
                 mongoClient.close();
                 throw e;
             }
-            database = mongoClient.getDatabase(MONGO_DATABASE);
-            logger.info("Successfully initialized MongoClient");
+
+            // Include the codec registry to deserialize Documents and fields into POJOs
+            CodecRegistry pojoCodecRegistry = fromRegistries(
+                MongoClientSettings.getDefaultCodecRegistry(),
+                fromProviders(PojoCodecProvider.builder().automatic(true).build())
+            );
+
+            database = mongoClient.getDatabase(MONGO_DATABASE)
+                .withCodecRegistry(pojoCodecRegistry);
+            log.info("Successfully initialized MongoClient");
         } catch (NullPointerException e) {
             throw e;
         }
@@ -128,17 +137,6 @@ public class MongoConnector {
         }
     }
 
-    private void initializeProperties() {
-        //Probably should use mpConfig here instead of raw System.getenv....
-        MONGO_PASSWORD = System.getenv("MONGO_PASSWORD").toCharArray();
-        MONGO_AUTH_DB = System.getenv("MONGO_AUTH_DB");
-        MONGO_USER = System.getenv("MONGO_USER");
-        MONGO_IP = System.getenv("MONGO_IP");
-        MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
-        MONGO_DATABASE = System.getenv("MONGO_DATABASE");
-        MONGO_CONNECTION_STRING = System.getenv("MONGO_CONNECTION_STRING");
-    }
-
     public MongoConnector(MongoClient mClient, String mongoDatabase, String mongoCollection) {
         mongoClient = mClient;
         database = mongoClient.getDatabase(mongoDatabase);
@@ -146,75 +144,106 @@ public class MongoConnector {
         tradesCollection = database.getCollection(mongoCollection);
     }
 
+    private void initializeProperties() {
+        //Probably should use mpConfig here instead of raw System.getenv....
+        try {
+            MONGO_PASSWORD = System.getenv("MONGO_PASSWORD").toCharArray();
+        } catch (NullPointerException npe) {
+            log.fine("MONGO_PASSWORD not set");
+        }
+        MONGO_AUTH_DB = System.getenv("MONGO_AUTH_DB");
+        MONGO_USER = System.getenv("MONGO_USER");
+        MONGO_IP = System.getenv("MONGO_IP");
+        try {
+            MONGO_PORT = Integer.parseInt(System.getenv("MONGO_PORT"));
+        } catch (NumberFormatException nfe) {
+            log.fine("MONGO_PORT not set");
+        }
+        MONGO_DATABASE = System.getenv("MONGO_DATABASE");
+        MONGO_CONNECTION_STRING = System.getenv("MONGO_CONNECTION_STRING");
+    }
+
     //{ "owner":"John", "symbol":"IBM", "shares":3, "price":120, "when":"now", "commission":0  } 
     public void insertStockPurchase(StockPurchase sp, String topic) {
         //Only add to DB if it's a valid Symbol 
-        if (sp.getPrice() > 0) {
-            Document doc = new Document("topic", topic)
-                .append("id", sp.getId())
-                .append("owner", sp.getOwner())
-                .append("symbol", sp.getSymbol())
-                .append("shares", sp.getShares())
-                .append("price", sp.getPrice())
-                .append("notional", sp.getPrice() * sp.getShares())
-                .append("when", sp.getWhen())
-                .append("commission", sp.getCommission());
+        if (sp.price() > 0) {
+            Document doc = new Document("topic", "stocktrader")
+                .append("id", sp.id())
+                .append("owner", sp.owner())
+                .append("symbol", sp.symbol())
+                .append("shares", sp.shares())
+                .append("price", sp.price())
+                .append("notional", sp.price() * sp.shares())
+                .append("when", sp.when())
+                .append("commission", sp.commission());
             tradesCollection.insertOne(doc);
         }
     }
 
-    public JSONObject getTrades(String ownerName) {
-        // MongoCollection<Document> tradesCollection = database.getCollection(TRADE_DATABASE);
+    public Transactions getTrades(String ownerName) {
+        MongoCollection<Transaction> tradesCollection = database.getCollection(TRADE_COLLECTION_NAME, Transaction.class);
 
-        FindIterable<Document> docs = this.tradesCollection.find(Filters.eq("owner", ownerName));
-        return docsToJsonObject(docs, "transactions");
+        List<Transaction> trades = new ArrayList<Transaction>();
+        tradesCollection.find(eq("owner", ownerName)).into(trades);
+        trades.forEach(trade -> log.finest(trade.toString()));
+
+        var t = new Transactions(trades);
+        return t;
     }
 
-    public JSONObject getTradesForSymbol(String ownerName, String symbol) {
-        FindIterable<Document> docs = tradesCollection.find(Filters.and(Filters.eq("owner", ownerName), Filters.eq("symbol", symbol)));
-        return docsToJsonObject(docs, "transactions");
+    public Transactions getTradesForSymbol(String ownerName, String symbol) {
+        MongoCollection<Transaction> tradesCollection = database.getCollection(TRADE_COLLECTION_NAME, Transaction.class);
+
+        List<Transaction> trades = new ArrayList<Transaction>();
+        tradesCollection.find(and(eq("owner", ownerName), eq("symbol", symbol))).into(trades);
+        trades.forEach(trade -> log.finest(trade.toString()));
+
+        var t = new Transactions(trades);
+        return t;
     }
 
     private MongoIterable<Document> getSharesCount(String ownerName, String symbol) {
-        // TODO replace this mapReduce with an aggregate like getTotalNotional
-        MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.symbol, this.shares); }",
-                "function(key, values) { return Array.sum(values) }")
-            .filter(Filters.and(Filters.eq("owner", ownerName), Filters.eq("symbol", symbol)));
+        AggregateIterable<Document> docs = tradesCollection.aggregate(Arrays.asList(
+            match(and(eq("owner", ownerName), eq("symbol", symbol))),
+            group("$symbol", sum("value", "$shares"))
+        ));
         return docs;
     }
 
-    public JSONObject getSymbolShares(String ownerName, String symbol) {
+    public Share getSymbolShares(String ownerName, String symbol) {
         MongoIterable<Document> docs = getSharesCount(ownerName, symbol);
-        JSONObject result = docsToJsonObject(docs, "shares");
+        var result = new Share(symbol, docs.first().getInteger("value"));
+        //JSONObject result = docsToJsonObject(docs, "shares");
         return result;
     }
 
-    private MongoIterable<Document> getPortfolioShares(String ownerName) {
-        // TODO replace this mapReduce with an aggregate like getTotalNotional
-        MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.symbol, this.shares); }",
-                "function(key, values) { return Array.sum(values) }")
-            .filter(Filters.eq("owner", ownerName));
-        return docs;
+    public Shares getPortfolioShares(String ownerName) {
+        var docs = tradesCollection.aggregate(Arrays.asList(
+            match(eq("owner", ownerName)),
+            group("$symbol", sum("value", "$shares"))
+        )).into(new ArrayList<>());
+        var result = docs.stream().map(d ->
+                new Share(d.getString("_id"), d.getInteger("value")))
+            .toList();
+        var s = new Shares(result);
+        return s;
     }
 
-    public JSONObject getPortfolioSharesJSON(String ownerName) {
-        return docsToJsonObject(getPortfolioShares(ownerName), "shares");
-    }
+    public MongoIterable<Document> getStocksNotional(String ownerName) {
+        AggregateIterable<Document> docs = tradesCollection.aggregate(Arrays.asList(
+            match(eq("owner", ownerName)),
+            group("$symbol", sum("value", "$notional"))
+        ));
 
-    public MapReduceIterable<Document> getStocksNotional(String ownerName) {
-        // TODO replace this mapReduce with an aggregate like getTotalNotional
-        MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.symbol, this.notional); }",
-                "function(key, values) { return Array.sum(values) }")
-            .filter(Filters.eq("owner", ownerName));
         return docs;
     }
 
     public Double getTotalNotional(String ownerName) {
         Document result = tradesCollection.aggregate(Arrays.asList(
-            Aggregates.match(Filters.eq("owner", ownerName)),
-            Aggregates.group(null, Accumulators.sum("notional", "$notional"))
+            match(eq("owner", ownerName)),
+            group(null, sum("notional", "$notional"))
         )).first();
-        logger.fine("Here are the results of the total notional calculation: " + result);
+        log.fine("Here are the results of the total notional calculation: " + result);
         if (result == null) {
             return Double.valueOf(0);
         } else {
@@ -224,10 +253,10 @@ public class MongoConnector {
 
     public Double getCommissionTotal(String ownerName) {
         Document result = tradesCollection.aggregate(Arrays.asList(
-            Aggregates.match(Filters.eq("owner", ownerName)),
-            Aggregates.group(null, Accumulators.sum("commission", "$commission"))
+            match(eq("owner", ownerName)),
+            group(null, sum("commission", "$commission"))
         )).first();
-        logger.fine("Here are the results of the total commission calculation: " + result);
+        log.fine("Here are the results of the total commission calculation: " + result);
         if (result == null) {
             return Double.valueOf(0);
         } else {
@@ -235,11 +264,12 @@ public class MongoConnector {
         }
     }
 
+    @Deprecated
     public JSONObject getSymbolNotional(String ownerName, String symbol) {
-        // TODO replace this mapReduce with an aggregate like getTotalNotional
-        MapReduceIterable<Document> docs = tradesCollection.mapReduce("function() { emit( this.symbol, this.notional); }",
-                "function(key, values) { return Array.sum(values) }")
-            .filter(Filters.and(Filters.eq("owner", ownerName), Filters.eq("symbol", symbol)));
+        AggregateIterable<Document> docs = tradesCollection.aggregate(Arrays.asList(
+            match(and(eq("owner", ownerName), eq("symbol", symbol))),
+            group("$symbol", sum("value", "$notional"))
+        ));
         JSONObject result = docsToJsonObject(docs, "notional");
         return result;
     }
@@ -248,28 +278,25 @@ public class MongoConnector {
      * @param ownerName
      * @return JSONObject containing array of equities
      */
-    public JSONObject getPortfolioEquity(String ownerName) {
+    public List<ShareEquity> getPortfolioEquity(String ownerName) {
         // getPortfolioShares, iterate through and use StockQuote to get current price
         // to calculate equity per Symbol
 
-        JSONArray jsonArray = new JSONArray();
+        List<ShareEquity> equities = new ArrayList<>();
 
-        MongoIterable<Document> portfolioShares = getPortfolioShares(ownerName);
-        for (Document item : portfolioShares) {
-            System.out.println("portfolio item: " + item.toString());
+        var portfolioShares = getPortfolioShares(ownerName);
+        for (Share item : portfolioShares.shares()) {
+            log.fine("portfolio item: " + item.toString());
 
-            String symbol = item.get("_id").toString();
-            Double shares = Double.parseDouble(item.get("value").toString());
+            String symbol = item.symbol();
+            Integer shares = item.shares();
             Double equity = getSymbolEquity(shares, symbol);
 
-            JSONObject obj = new JSONObject();
-            obj.put("symbol", symbol);
-            obj.put("equity", equity);
+            var se = new ShareEquity(symbol, equity);
 
-            jsonArray.put(obj);
+            equities.add(se);
         }
-        JSONObject result = new JSONObject().put("portfolio", jsonArray);
-        return result;
+        return equities;
     }
 
     private Double getSymbolPrice(String symbol) {
@@ -277,22 +304,22 @@ public class MongoConnector {
         try {
             quote = stockQuoteClient.getStockQuote(symbol);
         } catch (Exception e) {
-            System.out.println("Error in " + this.getClass().getName());
-            System.out.println(e);
+            log.severe("Error in " + this.getClass().getName());
+            log.severe(e.toString());
         }
         Double price = quote.getPrice();
         return price;
     }
 
-    private Double getSymbolEquity(Double shares, String symbol) {
+    private Double getSymbolEquity(Integer shares, String symbol) {
         Double price = getSymbolPrice(symbol);
-        Double equity = price * shares;
+        Double equity = price * shares.doubleValue();
         return equity;
     }
 
     public Double getSymbolEquity(String owner, String symbol) {
         Document doc = getSharesCount(owner, symbol).first(); //getSymbolShares(owner, symbol).get("shares");
-        Double shares = doc.getDouble("value");
+        Integer shares = doc.getInteger("value");
         return getSymbolEquity(shares, symbol);
     }
 
@@ -300,15 +327,10 @@ public class MongoConnector {
      * @param ownerName
      * @return total value of equity (no symbol breakdown)
      */
-    public JSONObject getTotalEquity(String ownerName) {
-        //TODO: getPortfolioEquity and reduce value
-        JSONArray portfolioEquity = getPortfolioEquity(ownerName).getJSONArray("portfolio");
-        for (Object obj : portfolioEquity) {
-
-        }
-
-        JSONObject result = new JSONObject();
-        return result;
+    public Double getTotalEquity(String ownerName) {
+        List<ShareEquity> equities = getPortfolioEquity(ownerName);
+        var totalEquity = equities.stream().mapToDouble(ShareEquity::equity).sum();
+        return totalEquity;
     }
 
     /**
@@ -320,7 +342,7 @@ public class MongoConnector {
         Double notional = getTotalNotional(ownerName);
         Double commissions = getCommissionTotal(ownerName);
         Double profits = equity - notional - commissions;
-        Double roi = profits / notional * 100;
+        Double roi = (profits / notional) * 100;
         if (roi.isNaN()) {
             return "None";
         } else {
@@ -328,6 +350,16 @@ public class MongoConnector {
         }
     }
 
+    public Transaction getLatestBuy() {
+        MongoCollection<Transaction> tradesCollection = database.getCollection(TRADE_COLLECTION_NAME, Transaction.class);
+
+        return tradesCollection.find()
+            .sort(descending("when"))
+            .limit(1)
+            .first();
+    }
+
+    @Deprecated
     private JSONObject docsToJsonObject(MongoIterable<Document> docs, String label) {
         JSONArray jsonArray = new JSONArray();
         JSONObject json = new JSONObject();

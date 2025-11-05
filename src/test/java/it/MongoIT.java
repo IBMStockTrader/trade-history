@@ -14,41 +14,19 @@
  */
 package it;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-
-import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoIterable;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MapReduceIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.MongoCredential;
-import com.mongodb.client.model.Filters;
-import com.mongodb.MongoSocketException;
-
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.MongoConnector;
 import com.ibm.hybrid.cloud.sample.stocktrader.tradehistory.mongo.StockPurchase;
-
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Response;
-
-import org.json.JSONObject;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.Test;
-import org.junit.BeforeClass;
+import com.mongodb.MongoClient;
+import com.mongodb.ServerAddress;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.inject.Inject;
-import jakarta.inject.Provider;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
+import static org.junit.Assert.assertEquals;
 
 public class MongoIT extends EndpointHelper {
 
@@ -62,42 +40,46 @@ public class MongoIT extends EndpointHelper {
     public static MongoConnector mConnector;
 
     @Test
-    public void getTradesTest(){
-        StockPurchase sp = new StockPurchase("User", "User", "IBM", 1, 1.00, "2008-01-01 12:00:01.01", 1.00);
+    public void getTradesTest() {
+
+        var fixed = Instant.from(OffsetDateTime.of(2025, 8, 28, 10, 45, 30, 0, ZoneOffset.UTC));
+        StockPurchase sp = new StockPurchase("User", "User", "IBM", 1, 1.00, fixed, 1.00);
         mConnector.insertStockPurchase(sp, "getTradesTest");
 
-        JSONObject mongoResponse = mConnector.getTrades("User");
-        JSONObject transaction = mongoResponse.getJSONArray("transactions").getJSONObject(0);
-                
-        assertEquals(transaction.getString("owner"), "User");
-        assertEquals(transaction.getString("shares"), "1");
-        assertEquals(transaction.getString("symbol"), "IBM");
-        assertEquals(transaction.getString("notional"), "1.0");
-        assertEquals(transaction.getString("price"), "1.0");
-        assertEquals(transaction.getString("topic"), "getTradesTest");
-        assertEquals(transaction.getString("commission"), "1.0");
-        assertEquals(transaction.getString("id"), "User");
-        assertEquals(transaction.getString("when"), "2008-01-01 12:00:01.01");
+        var mongoResponse = mConnector.getTrades("User");
+        //JSONObject transaction = mongoResponse.getJSONArray("transactions").getJSONObject(0);
+        var transaction = mongoResponse.transactions().get(0);
+
+        assertEquals(transaction.owner(), "User");
+        assertEquals(transaction.shares(), "1");
+        assertEquals(transaction.symbol(), "IBM");
+        assertEquals(transaction.notional(), "1.0");
+        assertEquals(transaction.price(), "1.0");
+//        assertEquals(transaction.topic(), "getTradesTest");
+        assertEquals(transaction.commission(), "1.0");
+        assertEquals(transaction._id(), "User");
+        assertEquals(transaction.when(), fixed);
     }
 
     @Test
-    public void getROITest(){
-        StockPurchase sp = new StockPurchase("UserROI", "UserROI", "IBM", 10, 2.00, "2008-01-01 12:00:01.01", 0.00);
+    public void getROITest() {
+        var fixed = Instant.from(OffsetDateTime.of(2025, 8, 28, 10, 45, 30, 0, ZoneOffset.UTC));
+        StockPurchase sp = new StockPurchase("UserROI", "UserROI", "IBM", 10, 2.00, fixed, 0.00);
         mConnector.insertStockPurchase(sp, "getROITest");
 
-        assertEquals( "150.00", mConnector.getROI("UserROI",50.00 ) );
+        assertEquals("150.00", mConnector.getROI("UserROI", 50.00));
     }
 
 
     @BeforeClass
-    public static void initializeMockMongoDB(){
+    public static void initializeMockMongoDB() {
         ServerAddress sa = new ServerAddress(TEST_MONGO_HOST, TEST_MONGO_PORT);
         mongoClient = new MongoClient(sa);
         mConnector = new MongoConnector(mongoClient, TEST_MONGO_DATABASE, TEST_MONGO_COLLECTION);
-     }
+    }
 
-     @AfterClass
-     public static void closeMongoDB() {
+    @AfterClass
+    public static void closeMongoDB() {
         mongoClient.close();
-     }
+    }
 }

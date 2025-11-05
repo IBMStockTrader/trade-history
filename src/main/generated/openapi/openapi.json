@@ -2,22 +2,72 @@
   "openapi" : "3.1.0",
   "components" : {
     "schemas" : {
-      "Quote" : {
+      "Share" : {
         "type" : "object",
         "properties" : {
           "symbol" : {
             "type" : "string"
           },
-          "price" : {
-            "type" : "number",
-            "format" : "double"
-          },
-          "date" : {
+          "shares" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "Shares" : {
+        "type" : "object",
+        "properties" : {
+          "shares" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Share"
+            }
+          }
+        }
+      },
+      "Transaction" : {
+        "type" : "object",
+        "properties" : {
+          "owner" : {
             "type" : "string"
           },
-          "time" : {
+          "shares" : {
             "type" : "integer",
-            "format" : "int64"
+            "format" : "int32"
+          },
+          "symbol" : {
+            "type" : "string"
+          },
+          "notional" : {
+            "type" : "number",
+            "format" : "float"
+          },
+          "price" : {
+            "type" : "number",
+            "format" : "float"
+          },
+          "commission" : {
+            "type" : "number",
+            "format" : "float"
+          },
+          "_id" : {
+            "type" : "string"
+          },
+          "when" : {
+            "type" : "string",
+            "format" : "date-time",
+            "examples" : [ "2022-03-10T16:15:50Z" ]
+          }
+        }
+      },
+      "Transactions" : {
+        "type" : "object",
+        "properties" : {
+          "transactions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Transaction"
+            }
           }
         }
       }
@@ -40,7 +90,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Quote"
+                  "$ref" : "#/components/schemas/Transaction"
                 }
               }
             }
@@ -71,7 +121,8 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Quote"
+                  "type" : "number",
+                  "format" : "double"
                 }
               }
             }
@@ -112,7 +163,8 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Quote"
+                  "type" : "number",
+                  "format" : "double"
                 }
               }
             }
@@ -144,7 +196,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Quote"
+                  "$ref" : "#/components/schemas/Shares"
                 }
               }
             }
@@ -184,7 +236,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Quote"
+                  "$ref" : "#/components/schemas/Share"
                 }
               }
             }
@@ -217,7 +269,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Quote"
+                  "$ref" : "#/components/schemas/Transactions"
                 }
               }
             }
@@ -227,7 +279,7 @@
     },
     "/trade-history/trades/{owner}/{symbol}" : {
       "get" : {
-        "summary" : "Get trade histoiry of specified owner for the specified stock symbol",
+        "summary" : "Get trade history of specified owner for the specified stock symbol",
         "description" : "Get an array of the owner's transactions for the specified stock symbol",
         "parameters" : [ {
           "description" : "Owner name",
@@ -254,11 +306,11 @@
             }
           },
           "200" : {
-            "description" : "The ROI for the requested owner and symbol have been retrieved successfully.",
+            "description" : "The trades for the requested owner and symbol have been retrieved successfully.",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Quote"
+                  "$ref" : "#/components/schemas/Transactions"
                 }
               }
             }

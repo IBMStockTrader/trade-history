@@ -13,38 +13,40 @@
 -->
 
 <server description="Trade History server">
-  <featureManager>
-      <feature>microprofile-6.1</feature>
-      <feature>mpReactiveMessaging-3.0</feature>
-      <feature>jndi-1.0</feature>
-  </featureManager>
+    <featureManager>
+        <feature>microprofile-6.1</feature>
+        <feature>mpReactiveMessaging-3.0</feature>
+        <feature>jndi-1.0</feature>
+        <feature>cdi-4.0</feature>
+    </featureManager>
 
-  <variable name="TRACE_SPEC" defaultValue="*=info"/>
+    <variable name="TRACE_SPEC" defaultValue="*=info"/>
 
-  <logging traceSpecification="${TRACE_SPEC}" consoleLogLevel="INFO" />
+    <logging traceSpecification="${TRACE_SPEC}" consoleLogLevel="INFO"/>
 
-  <httpEndpoint httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint" host="*" />
+    <httpEndpoint httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint" host="*"/>
 
-  <!-- Automatically expand WAR files and EAR files -->
-  <applicationManager autoExpand="true"/>
+    <!-- Automatically expand WAR files and EAR files -->
+    <applicationManager autoExpand="true"/>
 
-  <webApplication name="trade-history" location="trade-history.war">
-      <classloader apiTypeVisibility="+third-party"/>
-  </webApplication>
-  
-  <keyStore id="defaultKeyStore" password="St0ckTr@der" type="pkcs12"
-        location="${server.config.dir}/resources/security/key.p12" />
+    <webApplication name="trade-history" location="trade-history.war">
+        <classloader apiTypeVisibility="+third-party"/>
+    </webApplication>
 
-  <keyStore id="defaultTrustStore" password="St0ckTr@der" type="pkcs12"
-        location="${server.config.dir}/resources/security/trust.p12" />
+    <keyStore id="defaultKeyStore" password="St0ckTr@der" type="pkcs12"
+              location="${server.config.dir}/resources/security/key.p12"/>
 
-  <ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" trustStoreRef="defaultTrustStore" trustDefaultCerts="true" />
+    <keyStore id="defaultTrustStore" password="St0ckTr@der" type="pkcs12"
+              location="${server.config.dir}/resources/security/trust.p12"/>
 
-  <variable name="AUTH_TYPE" defaultValue="basic"/>
-  <variable name="JWT_AUDIENCE" defaultValue="stock-trader"/>
-  <variable name="JWT_ISSUER" defaultValue="http://stock-trader.ibm.com"/>
+    <ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" trustStoreRef="defaultTrustStore"
+         trustDefaultCerts="true"/>
 
-  <include optional="false" location="${server.config.dir}/includes/${AUTH_TYPE}.xml"/>
+    <variable name="AUTH_TYPE" defaultValue="basic"/>
+    <variable name="JWT_AUDIENCE" defaultValue="stock-trader"/>
+    <variable name="JWT_ISSUER" defaultValue="http://stock-trader.ibm.com"/>
 
-  <mpMetrics authentication="false"/>
+    <include optional="false" location="${server.config.dir}/includes/${AUTH_TYPE}.xml"/>
+
+    <mpMetrics authentication="false"/>
 </server>
