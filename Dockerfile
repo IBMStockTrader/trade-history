@@ -1,5 +1,5 @@
 #       Copyright 2017-2021 IBM Corp All Rights Reserved
-#       Copyright 2022-2024 Kyndryl, All Rights Reserved
+#       Copyright 2022-2025 Kyndryl, All Rights Reserved
 
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@
 # RUN mvn -f /usr/pom.xml clean package
 
 # FROM websphere-liberty:microProfile3
-FROM openliberty/open-liberty:25.0.0.6-full-java21-openj9-ubi-minimal
+# FROM openliberty/open-liberty:25.0.0.6-full-java21-openj9-ubi-minimal
+FROM icr.io/appcafe/open-liberty:25.0.0.9-full-java21-openj9-ubi-minimal
 
 USER root
 
