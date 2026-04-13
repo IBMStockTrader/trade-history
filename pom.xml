@@ -118,7 +118,7 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
 <!--            <version>3.9.1</version>-->
-            <version>4.0.0</version>
+            <version>4.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.ibm.runtimetools</groupId>
